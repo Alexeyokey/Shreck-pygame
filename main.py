@@ -115,6 +115,8 @@ def main():
             self.frame = self.main_player_frames[self.current_frame_row][self.current_frame_col]
 
         def update(self, dt):
+            if self.direction.x or self.direction.y:
+                self.last_direction = self.direction.copy()
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:
                 self.current_frame_row = 1
@@ -141,8 +143,6 @@ def main():
                 self.timer_animation += 150
                 self.current_frame_col = (self.current_frame_col + 1) % 4
                 self.frame = self.main_player_frames[self.current_frame_row][self.current_frame_col]
-            if self.direction.x or self.direction.y:
-                self.last_direction = self.direction.copy()
             self.rect.center += self.direction * self.speed * dt
             self.surf.fill((0, 0, 0))
             self.surf.blit(self.frame, (-25, -30))
@@ -154,15 +154,22 @@ def main():
         def __init__(self):
             super().__init__()
             self.display_surface = pygame.display.get_surface()
-
-            # camera offset
             self.offset = pygame.math.Vector2(0, 0)
             self.half_w = self.display_surface.get_size()[0] // 2
             self.half_h = self.display_surface.get_size()[1] // 2
+            self.add_x = 0
+            self.add_y = 0
 
         def center_target_camera(self, target):
-            self.offset.x = target.rect.centerx - self.half_w
-            self.offset.y = target.rect.centery - self.half_h
+            x, y = target.direction.x, target.direction.y
+            if (target.direction != (0, 0) and
+                    (abs(self.add_x) < abs(target.direction.x * 50) or target.last_direction.x != target.direction.x)):
+                self.add_x += x * 3
+            if target.direction != (0, 0) and (abs(self.add_y) < abs(
+                    target.direction.y * 50) or target.last_direction.y != target.direction.y):
+                self.add_y += y * 3
+            self.offset.x = target.rect.centerx - self.half_w + self.add_x
+            self.offset.y = target.rect.centery - self.half_h + self.add_y
 
         def custom_draw(self, layers, player):
             camera_group.center_target_camera(player)
@@ -245,13 +252,13 @@ def main():
                 running = False
         if not game_over:
             pressed_keys = pygame.key.get_pressed()
-            if pygame.time.get_ticks() > timer:
-                timer += 1000
-                n_enemies += 1
-                for i in range(n_enemies):
-                    enemy = Enemy(100)
-                    enemies.add(enemy)
-                    camera_group.add(enemy)
+            # if pygame.time.get_ticks() > timer:
+            #     timer += 1000
+            #     n_enemies += 1
+            #     for i in range(n_enemies):
+            #         enemy = Enemy(100)
+            #         enemies.add(enemy)
+            #         camera_group.add(enemy)
             if pressed_keys[K_q]:
                 last_direction = player.last_direction.copy()
                 bullet = Bullet(200, last_direction)
