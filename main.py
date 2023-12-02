@@ -1,19 +1,13 @@
 import random
 import pygame
+import math
 from map import Map
+from scripts import get_angle_between
 from spritesheet import SpriteSheet
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
-from pygame.locals import (
-    K_w,
-    K_a,
-    K_s,
-    K_d,
-    K_ESCAPE,
-    K_q,
-    KEYDOWN,
-    QUIT,
-)
+from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
+
 pygame.init()
 
 info = pygame.display.Info()
@@ -23,25 +17,9 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
 def main():
-    class Bullet(pygame.sprite.Sprite):
-        def __init__(self, speed, direction, group):
-            super().__init__(group)
-            self.direction = direction
-            self.surf = pygame.Surface((20, 20))
-            self.surf.fill((210, 210, 210))
-            self.rect = self.surf.get_rect()
-            self.rect.center = player.rect.center
-            self.speed = speed
-
-        def update(self, dt):
-            self.rect.center += self.direction * self.speed * dt
-
-        def get_surf(self):
-            return self.surf
-
     class Enemy(pygame.sprite.Sprite):
-        def __init__(self, speed, group):
-            super().__init__(group)
+        def __init__(self, speed, *group):
+            super().__init__(*group)
             self.hp = 100
             self.surf = pygame.Surface((20, 20))
             self.surf.fill((255, 0, 0))
@@ -50,9 +28,11 @@ def main():
             x, y = player.rect.center
             x, y = x - self.epsilon, y - self.epsilon
             safe_rect = pygame.Rect(x, y, 2 * self.epsilon, 2 * self.epsilon)
-            not_safe = pygame.Rect(random.randint(20, SCREEN_WIDTH - 100), random.randint(0, SCREEN_HEIGHT), self.rect.w, self.rect.h)
+            not_safe = pygame.Rect(random.randint(20, SCREEN_WIDTH - 100), random.randint(0, SCREEN_HEIGHT),
+                                   self.rect.w, self.rect.h)
             while safe_rect.colliderect(not_safe):
-                not_safe = pygame.Rect(random.randint(20, SCREEN_WIDTH - 100), random.randint(0, SCREEN_HEIGHT), self.rect.w, self.rect.h)
+                not_safe = pygame.Rect(random.randint(20, SCREEN_WIDTH - 100), random.randint(0, SCREEN_HEIGHT),
+                                       self.rect.w, self.rect.h)
             self.rect = not_safe
             self.speed = speed
 
@@ -78,13 +58,14 @@ def main():
             return self.surf
 
     class Player(pygame.sprite.Sprite):
-        def __init__(self, stylesheet, group):
-            super().__init__(group)
+        def __init__(self, stylesheet, *group):
+            super().__init__(*group)
             self.hp = 100
             self.stylesheet = stylesheet
-            self.surf = pygame.Surface((40, 55))
-            self.surf.set_colorkey(pygame.Color("black"))
-            self.rect = self.surf.get_rect()
+            self.original_surf = pygame.Surface((40, 55))
+            self.original_surf.set_colorkey(pygame.Color("black"))
+            self.rotated_surf = self.original_surf.copy()
+            self.rect = self.rotated_surf.get_rect()
             self.direction = pygame.math.Vector2()
             self.last_direction = pygame.math.Vector2()
             self.last_direction.y = -1
@@ -94,24 +75,26 @@ def main():
             self.timer_animation = pygame.time.get_ticks()
             self.main_player_frames = player_frames_right
             self.frame = self.main_player_frames[self.current_frame_row][self.current_frame_col]
+            self.bow = None
+            self.sword = None
 
         def update(self, dt):
             if self.direction.x or self.direction.y:
                 self.last_direction = self.direction.copy()
             keys = pygame.key.get_pressed()
             self.current_frame_row = 1
-            if keys[pygame.K_w]:
+            if keys[pygame.K_UP]:
                 self.current_frame_row = 1
                 self.direction.y = -1
-            elif keys[pygame.K_s]:
+            elif keys[pygame.K_DOWN]:
                 self.current_frame_row = 1
                 self.direction.y = 1
             else:
                 self.direction.y = 0
-            if keys[pygame.K_d]:
+            if keys[pygame.K_RIGHT]:
                 self.direction.x = 1
                 self.main_player_frames = player_frames_right
-            elif keys[pygame.K_a]:
+            elif keys[pygame.K_LEFT]:
                 self.direction.x = -1
                 self.main_player_frames = player_frames_left
             else:
@@ -127,8 +110,70 @@ def main():
                 self.current_frame_col = (self.current_frame_col + 1) % 4
                 self.frame = self.main_player_frames[self.current_frame_row][self.current_frame_col]
             self.rect.center += self.direction * self.speed * dt
-            self.surf.fill((0, 0, 0))
-            self.surf.blit(self.frame, (-25, -30))
+            self.rotated_surf.fill((0, 0, 0))
+            self.rotated_surf.blit(self.frame, (-25, -30))
+            mouse_pos = pygame.mouse.get_pos() + camera_group.offset
+            if mouse_pos[0] > self.rect.centerx:
+                self.main_player_frames = player_frames_right
+            if mouse_pos[0] < self.rect.centerx:
+                self.main_player_frames = player_frames_left
+
+        def get_center(self):
+            return pygame.Vector2(self.rect.center)
+
+        def get_surf(self):
+            return self.rotated_surf
+
+    class Weapon(pygame.sprite.Sprite):
+        def __init__(self, entity, *group):
+            super().__init__(*group)
+            self.entity = entity
+            self.group = group
+            self.original_surf = pygame.Surface((10, 20))
+            self.original_surf.set_colorkey((0, 0, 0))
+            self.original_surf.fill((210, 210, 210))
+            self.rotated_surf = self.original_surf.copy()
+            self.rect = self.rotated_surf.get_rect()
+            self.rect.center = self.entity.rect.center
+            self.timer = pygame.time.get_ticks()
+            self.angle = None
+
+        def update(self, dt) -> None:
+            self.rect.center = self.entity.rect.center
+            self.angle = get_angle_between(pygame.mouse.get_pos() + camera_group.offset, self.entity.rect.center)
+            self.rotated_surf = pygame.transform.rotate(self.original_surf, -math.degrees(self.angle))
+
+        def get_surf(self):
+            return self.rotated_surf
+
+    class Sword(Weapon):
+        def attack(self):
+            pass
+
+    class Bow(Weapon):
+        def shoot(self, speed):
+            if self.timer < pygame.time.get_ticks():
+                self.timer = pygame.time.get_ticks() + 1000
+                Bullet(speed, self.angle, self.group, bullets)
+
+        def update(self, dt):
+            super().update(dt)
+
+    class Bullet(pygame.sprite.Sprite):
+        def __init__(self, speed, angle, *group):
+            super().__init__(*group)
+            self.angle = angle
+            self.surf = pygame.Surface((20, 5))
+            self.surf.set_colorkey("black")
+            self.surf.fill((255, 0, 0))
+            self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
+            self.rect = self.surf.get_rect()
+            self.rect.center = player.rect.center
+            self.speed = speed
+
+        def update(self, dt):
+            self.rect.centerx += math.cos(self.angle) * self.speed * dt
+            self.rect.centery += math.sin(self.angle) * self.speed * dt
 
         def get_surf(self):
             return self.surf
@@ -138,7 +183,6 @@ def main():
             super().__init__()
             self.display_surface = pygame.display.get_surface()
             self.offset = pygame.math.Vector2(0, 0)
-            self.offset
             self.half_w = self.display_surface.get_size()[0] // 2
             self.half_h = self.display_surface.get_size()[1] // 2
             self.add_x = 0
@@ -163,6 +207,7 @@ def main():
             for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 offset_pos = sprite.rect.topleft - self.offset
                 self.display_surface.blit(sprite.get_surf(), offset_pos)
+
     running = True
     player_sprite_sheet = SpriteSheet(
         pygame.image.load("sprites/camelot_ [version 1.0]/arthurPendragon_.png").convert_alpha())
@@ -196,6 +241,24 @@ def main():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
+                elif event.key == K_r:
+                    if not player.bow:
+                        if player.sword:
+                            player.sword.kill()
+                            player.sword = None
+                        player.bow = Bow(player, camera_group)
+                    else:
+                        player.bow.kill()
+                        player.bow = None
+                elif event.key == K_t:
+                    if not player.sword:
+                        if player.bow:
+                            player.bow.kill()
+                            player.bow = None
+                        player.sword = Sword(player, camera_group)
+                    else:
+                        player.sword.kill()
+                        player.sword = None
             elif event.type == QUIT:
                 running = False
         if not game_over:
@@ -204,12 +267,9 @@ def main():
                 timer += 10000
                 n_enemies += 1
                 for i in range(n_enemies):
-                    enemy = Enemy(100, camera_group)
-                    enemies.add(enemy)
-            if pressed_keys[K_q]:
-                last_direction = player.last_direction.copy()
-                bullet = Bullet(200, last_direction, camera_group)
-                bullets.add(bullet)
+                    Enemy(100, camera_group, enemies)
+            if pressed_keys[K_q] and player.bow:
+                player.bow.shoot(1000)
             camera_group.update(dt)
             camera_group.custom_draw(map.get_layers(), player)
             for i in enemies:
@@ -229,14 +289,14 @@ def main():
             retry_text = f2.render('Retry', 1, (255, 255, 255))
             button.create_button(screen, (255, 255, 255), SCREEN_WIDTH // 2 - button_size[0] // 2,
                                  SCREEN_HEIGHT // 2 + 100, button_size, retry_text, 1)
-            screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, SCREEN_HEIGHT // 2 - game_over_text.get_height() // 2))
+            screen.blit(game_over_text, (
+            SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, SCREEN_HEIGHT // 2 - game_over_text.get_height() // 2))
             button.draw_button()
             if pygame.mouse.get_pressed()[0]:
                 if button.pressed(pygame.mouse.get_pos()):
                     running = False
                     main()
         pygame.display.flip()
-
 
 
 if __name__ == "__main__":
