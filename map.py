@@ -2,12 +2,12 @@ import pygame
 
 
 class Block:
-    def __init__(self, surface_size, image, through=False):
+    def __init__(self, surface, through=False):
         super().__init__()
         self.__through = through
-        self.__surface = pygame.Surface(surface_size)
-        self.__rect = self.surface.get_rect()
-        self.__surface.blit(image, (0, 0))
+        self.__surface = surface
+        self.__rect = self.__surface.get_rect()
+        # self.__surface.blit(image, (0, 0))
 
     def get_through(self):
         return self.__through
@@ -20,7 +20,7 @@ class Layer:
         self.__layer = layer
         self.__map_layer = [[None] * self.__layer.width for _ in range(self.__layer.height)]
         for x, y, surf in layer.tiles():
-            self.__map_layer[y][x] = surf
+            self.__map_layer[y][x] = Block(surf, True)
         self.__surf_width = surf.get_width()
         self.__surf_height = surf.get_height()
 
