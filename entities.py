@@ -68,6 +68,7 @@ class Entity(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.last_direction = pygame.math.Vector2()
         self.last_direction.y = -1
+        self.sprite = None
         self.speed = 100
 
     def move(self, movement, objects):
@@ -82,6 +83,8 @@ class Entity(pygame.sprite.Sprite):
     def get_rect(self):
         return self.rect
 
+    def draw(self, surface, rect):
+        self.sprite.draw(surface, rect)
     def get_draw_rect(self):
         return self.rect
 

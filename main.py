@@ -4,7 +4,7 @@ import math
 from map import Map
 from entities import PhysicsObj, Entity
 from scripts import get_angle_between, load_image
-from spritesheet import SpriteSheet
+from spritesheet import SpriteSheet, Sprite, Animation
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
@@ -50,67 +50,74 @@ def start():
 
 def main():
     class Enemy(Entity):
-        def __init__(self, speed, image_shape, *group):
-            self.surf = pygame.Surface((20, 20))
-            self.surf.fill((255, 0, 0))
-            self.rect = self.surf.get_rect()
-            self.epsilon = 100
-            x, y = player.rect.center
-            x, y = x - self.epsilon, y - self.epsilon
-            safe_rect = pygame.Rect(x, y, 2 * self.epsilon, 2 * self.epsilon)
-            not_safe = pygame.Rect(random.randint(20, SCREEN_WIDTH - 100), random.randint(0, SCREEN_HEIGHT),
-                                   self.rect.w, self.rect.h)
-            while safe_rect.colliderect(not_safe):
-                not_safe = pygame.Rect(random.randint(20, SCREEN_WIDTH - 100), random.randint(0, SCREEN_HEIGHT),
-                                       self.rect.w, self.rect.h)
-            self.rect = not_safe
-            super().__init__((self.rect.x, self.rect.y, self.rect.w, self.rect.h), image_shape, *group)
+        def __init__(self, coords, speed, image_shape, *group):
+            super().__init__((coords[0], coords[1], image_shape[0], image_shape[1]), image_shape, *group)
+            self.surf = pygame.Surface(image_shape)
+            self.surf.set_colorkey((0, 0, 0))
+            self.rect = pygame.Rect((coords[0], coords[1], image_shape[0], image_shape[1]))
+            self.rect.topleft = coords
             self.hp = 100
             self.set_speed(speed)
+            self.sprite = Sprite(8)
+            wait_right = Animation.from_path('sprites/knight_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0), scale=2.5)
+            wait_left = Animation.from_path('sprites/knight_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0), scale=2.5)
+            run_right = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0), scale=2.5)
+            run_left = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0), scale=2.5)
+            self.sprite.add_animation({"wait_right": wait_right, "wait_left": wait_left,
+                                        "run_right": run_right, "run_left": run_left}, loop=True)
+            left_or_right = random.randint(0, 1)
+            self.sprite.start_animation("wait_left" if left_or_right else "wait_right", restart_if_active=True)
 
         def update(self, dt):
             x, y = self.rect.center
             x_player, y_player = player.rect.center
+            self.sprite.update(dt)
             if abs(x_player - x) <= 400 and abs(y_player - y) <= 400:
-                epsilon = self.speed
+                speed = self.speed
                 dif_x = x_player - x
                 dif_y = y_player - y
-                if abs(dif_x) > epsilon * dt or abs(dif_x) > epsilon:
-                    dif_x = epsilon if dif_x > 0 else -epsilon
+                if abs(dif_x) > speed * dt or abs(dif_x) > speed:
+                    dif_x = speed if dif_x > 0 else -speed
                 else:
                     dif_x = dif_x * dt
-                if abs(dif_y) > epsilon * dt or abs(dif_y) > epsilon:
-                    dif_y = epsilon if dif_y > 0 else -epsilon
+                if abs(dif_y) > speed * dt or abs(dif_y) > speed:
+                    dif_y = speed if dif_y > 0 else -speed
                 else:
                     dif_y = dif_y * dt
+                if dif_x > 0:
+                    self.sprite.start_animation("run_right", restart_if_active=False)
+                elif dif_x <= 0:
+                    self.sprite.start_animation("run_left", restart_if_active=False)
                 dif_x, dif_y = dif_x * dt, dif_y * dt
                 self.move((dif_x, dif_y), [player, *enemies])
 
-        def get_rect(self):
-            return self.rect
-
-        def get_surf(self):
-            return self.surf
+        def get_draw_rect(self):
+            return pygame.Rect(self.rect.x - 20, self.rect.y - 30, self.rect.w, self.rect.h)
 
     class Player(Entity):
-        def __init__(self, rect, image_shape, stylesheet, *group):
+        def __init__(self, rect, image_shape, *group):
             super().__init__(rect, image_shape, *group)
-            self.current_frame_row = 0
-            self.current_frame_col = 0
-            self.stylesheet = stylesheet
-            self.timer_animation = pygame.time.get_ticks()
-            self.main_player_frames = stylesheet[1]
-            self.frame = self.main_player_frames[self.current_frame_row][self.current_frame_col]
             self.animation_flag = True
             self.bow = None
             self.sword = None
             self.hp = 100
+            self.sprite = Sprite(8)
+            wait_right = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                             scale=2)
+            wait_left = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+                                            scale=2)
+            run_right = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                            scale=2)
+            run_left = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+                                           scale=2)
+            self.sprite.add_animation({"wait_right": wait_right, "wait_left": wait_left,
+                                        "run_right": run_right, "run_left": run_left}, loop=True)
+            self.sprite.start_animation("wait_left")
 
         def update(self, dt):
             if self.direction.x or self.direction.y:
                 self.last_direction = self.direction.copy()
             keys = pygame.key.get_pressed()
-            self.current_frame_row = 1
             if keys[pygame.K_UP]:
                 self.direction.y = -1
             elif keys[pygame.K_DOWN]:
@@ -118,40 +125,33 @@ def main():
             else:
                 self.direction.y = 0
             if keys[pygame.K_RIGHT]:
+                self.sprite.start_animation("run_right", restart_if_active=False)
                 self.direction.x = 1
-                self.main_player_frames = self.stylesheet[1]
             elif keys[pygame.K_LEFT]:
+                self.sprite.start_animation("run_left", restart_if_active=False)
                 self.direction.x = -1
-                self.main_player_frames = self.stylesheet[0]
             else:
                 self.direction.x = 0
             movement = self.direction * self.speed * dt
             self.move(movement, enemies)
-            self.rotated_surf.fill((0, 0, 0))
-            self.rotated_surf.blit(self.frame, (-40, -30))
-            self.animation()
+            self.animation(dt)
 
-        def animation(self):
-            if not self.direction.x and not self.direction.y:
-                self.current_frame_row = 0
-                if self.animation_flag:
-                    self.current_frame_col = 0
-                    self.animation_flag = False
-            if self.direction.x or self.direction.y:
-                self.animation_flag = True
-            if pygame.time.get_ticks() >= self.timer_animation:
-                self.timer_animation = pygame.time.get_ticks() + 150
-                self.frame = self.main_player_frames[self.current_frame_row][self.current_frame_col]
-                self.current_frame_col = (self.current_frame_col + 1) % 4
+        def animation(self, dt):
             mouse_pos = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+            # if not self.direction.x and not self.direction.y:
+            #     print(self.last_direction.x)
+            #     self.sprite.start_animation("wait_right", restart_if_active=False) if self.last_direction.x == 1 else self.sprite.start_animation("wait_left", restart_if_active=False)
             if mouse_pos[0] > self.rect.centerx:
-                self.main_player_frames = self.stylesheet[1]
+                if self.sprite.active_animation_key[-4:] == "left" and not self.direction.x and not self.direction.y:
+                    self.sprite.start_animation('wait_right', restart_if_active=False)
             if mouse_pos[0] < self.rect.centerx:
-                self.main_player_frames = self.stylesheet[0]
+                if self.sprite.active_animation_key[-5:] == "right" and not self.direction.x and not self.direction.y:
+                    self.sprite.start_animation('wait_left', restart_if_active=False)
+            self.sprite.update(dt)
             # print(self.last_direction, self.direction, self.animation_flag, self.current_frame_col)
 
         def get_draw_rect(self):
-            return pygame.Rect(self.rect.x - 5, self.rect.y - 5, self.rect.w, self.rect.h)
+            return pygame.Rect(self.rect.x - 45, self.rect.y - 38, self.rect.w, self.rect.h)
 
     class Weapon(pygame.sprite.Sprite):
         def __init__(self, image, entity, *group):
@@ -176,6 +176,9 @@ def main():
 
         def get_rect(self):
             return self.rect
+
+        def draw(self, sreen, rect):
+            sreen.blit(self.rotated_surf, rect)
 
         def get_draw_rect(self):
             return self.rect
@@ -218,40 +221,6 @@ def main():
                 image = pygame.transform.scale(image, (30, 15))
                 Bullet(speed, (30, 15), self.rect.center, self.angle, 10, image, self.group, bullets)
 
-        def update(self, dt):
-            super().update(dt)
-
-    class Bullet(pygame.sprite.Sprite):
-        def __init__(self, speed, size, coords, angle, time_disappear, image, *group):
-            super().__init__(*group)
-            self.x, self.y = coords
-            self.angle = angle
-            self.time_disappear = pygame.time.get_ticks() + time_disappear * 1000
-            self.surf = pygame.Surface(image.get_size())
-            if image:
-                self.surf.blit(image, (0, 0))
-            self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
-            self.surf.set_colorkey((0, 0, 0))
-            self.rect = self.surf.get_rect()
-            self.rect.center = coords
-            self.speed = speed
-
-        def update(self, dt):
-            self.x += math.cos(self.angle) * self.speed * dt
-            self.y += math.sin(self.angle) * self.speed * dt
-            self.rect.center = (self.x, self.y)
-            if self.time_disappear <= pygame.time.get_ticks():
-                self.kill()
-
-        def get_rect(self):
-            return self.rect
-
-        def get_draw_rect(self):
-            return self.rect
-
-        def get_surf(self):
-            return self.surf
-
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
             super().__init__()
@@ -269,8 +238,8 @@ def main():
             self.offset.x = target.rect.centerx - self.half_w - (x - mouse_pos.x) * 0.3
             self.offset.y = target.rect.centery - self.half_h - (y - mouse_pos.y) * 0.3
 
-        def custom_draw(self, layers, player):
-            camera_group.target_camera(player)
+        def custom_draw(self, screen, layers, player):
+            self.target_camera(player)
             for layer in layers:
                 for row in range(layer.height()):
                     for col in range(layer.width()):
@@ -280,32 +249,54 @@ def main():
                             self.display_surface.blit(layer[row][col].get_surf(), dest - self.offset)
             for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 offset_pos = sprite.get_draw_rect().topleft - self.offset
+                sprite.draw(self.display_surface, offset_pos)
                 self.display_surface.blit(sprite.get_surf(), offset_pos)
                 real_pos = sprite.get_rect().topleft - self.offset
                 coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
                 pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
+
         def screen_to_wordl(self, coords):
             return coords + self.offset
 
+    class Bullet(pygame.sprite.Sprite):
+        def __init__(self, speed, size, coords, angle, time_disappear, image, *group):
+            super().__init__(*group)
+            self.x, self.y = coords
+            self.angle = angle
+            self.time_disappear = pygame.time.get_ticks() + time_disappear * 1000
+            self.surf = image
+            self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
+            if not self.surf.get_colorkey():
+                self.surf.set_colorkey((0, 0, 0))
+            self.rect = self.surf.get_rect()
+            self.rect.center = coords
+            self.speed = speed
+
+        def update(self, dt):
+            self.x += math.cos(self.angle) * self.speed * dt
+            self.y += math.sin(self.angle) * self.speed * dt
+            self.rect.center = (self.x, self.y)
+            if self.time_disappear <= pygame.time.get_ticks():
+                self.kill()
+
+        def get_rect(self):
+            return self.rect
+
+        def get_draw_rect(self):
+            return self.rect
+
+        def draw(self, sreen, rect):
+            sreen.blit(self.surf, rect)
+        def get_surf(self):
+            return self.surf
+
+
     running = True
-    player_sprite_sheet = SpriteSheet(
-        pygame.image.load("sprites/shreck.png").convert_alpha())
-    player_frames_right = []
-    player_frames_left = []
-    for row in range(8):
-        player_frames_right.append([])
-        for col in range(4):
-            player_frames_right[row].append(player_sprite_sheet.get_image((col, row), 64, 64, 2, pygame.Color("black")))
-    for row in range(8):
-        player_frames_left.append([])
-        for col in range(4, 8):
-            player_frames_left[row].append(player_sprite_sheet.get_image((col, row), 64, 64, 2, pygame.Color("black")))
     enemies = pygame.sprite.Group()
     camera_group = CameraGroup()
     bullets = pygame.sprite.Group()
-    player = Player((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64),
-                    (player_frames_left, player_frames_right), camera_group)
+    player = Player((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64), camera_group)
     player.set_speed(120)
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
@@ -345,16 +336,16 @@ def main():
         if not game_over:
             pressed_keys = pygame.key.get_pressed()
             if pygame.time.get_ticks() > timer:
-                timer += 10000
-                n_enemies += 1
+                timer += 100000
+                # n_enemies += 1
                 for i in range(n_enemies):
-                    Enemy(100, (20, 20), camera_group, enemies)
+                    Enemy((300, 300), 100, (40, 40), camera_group, enemies)
             if pressed_keys[K_q] and player.bow:
                 player.bow.shoot(500)
             if pressed_keys[K_q] and player.sword:
                 player.sword.attack()
             camera_group.update(dt)
-            camera_group.custom_draw(map.get_layers(), player)
+            camera_group.custom_draw(screen, map.get_layers(), player)
             for i in enemies:
                 if pygame.sprite.spritecollideany(i, bullets):
                     i.kill()
