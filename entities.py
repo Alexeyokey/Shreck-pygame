@@ -1,12 +1,10 @@
 import pygame, math, os
-from pygame.locals import *
 
 
 def collision_test(object_1, object_list, old_rect):
     collision_list = []
     for obj in object_list:
         if obj.get_rect().colliderect(object_1) and obj.get_rect() != old_rect:
-            print(obj.get_rect(),old_rect)
             collision_list.append(obj.get_rect())
     return collision_list
 
@@ -82,6 +80,9 @@ class Entity(pygame.sprite.Sprite):
         self.speed = speed
 
     def get_rect(self):
+        return self.rect
+
+    def get_draw_rect(self):
         return self.rect
 
     def get_surf(self):

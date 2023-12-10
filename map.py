@@ -15,6 +15,7 @@ class Block:
     def get_surf(self):
         return self.__surface
 
+
 class Layer:
     def __init__(self, layer):
         self.__layer = layer

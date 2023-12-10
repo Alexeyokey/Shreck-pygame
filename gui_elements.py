@@ -1,5 +1,7 @@
 import pygame
 
+# def draw_buttons():
+
 class Button:
     def create_button(self, screen, color, x, y, button_size, text, width):
         self.screen = screen
@@ -16,8 +18,9 @@ class Button:
                                      self.y + self.height // 2 - self.text.get_height() // 2))
 
     def pressed(self, mouse):
-        if (mouse[0] > self.rect.topleft[0] and mouse[1] > self.rect.topleft[1] and mouse[0] < self.rect.bottomright[0]
-                and mouse[1] < self.rect.bottomright[1]):
-            return True
-        else:
-            return False
+        if pygame.mouse.get_pressed()[0]:
+            if (mouse[0] > self.rect.topleft[0] and mouse[1] > self.rect.topleft[1] and mouse[0] < self.rect.bottomright[0]
+                    and mouse[1] < self.rect.bottomright[1]):
+                return True
+            else:
+                return False
