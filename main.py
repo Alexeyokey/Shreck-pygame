@@ -4,7 +4,7 @@ import math
 from map import Map
 from entities import PhysicsObj, Entity
 from scripts import get_angle_between, load_image
-from spritesheet import SpriteSheet, Sprite, Animation
+from spritesheet import Sprite, Animation
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
@@ -59,12 +59,16 @@ def main():
             self.hp = 100
             self.set_speed(speed)
             self.sprite = Sprite(8)
-            wait_right = Animation.from_path('sprites/knight_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0), scale=2.5)
-            wait_left = Animation.from_path('sprites/knight_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0), scale=2.5)
-            run_right = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0), scale=2.5)
-            run_left = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0), scale=2.5)
+            wait_right = Animation.from_path('sprites/knight_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                             scale=2.5)
+            wait_left = Animation.from_path('sprites/knight_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+                                            scale=2.5)
+            run_right = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                            scale=2.5)
+            run_left = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+                                           scale=2.5)
             self.sprite.add_animation({"wait_right": wait_right, "wait_left": wait_left,
-                                        "run_right": run_right, "run_left": run_left}, loop=True)
+                                       "run_right": run_right, "run_left": run_left}, loop=True)
             left_or_right = random.randint(0, 1)
             self.sprite.start_animation("wait_left" if left_or_right else "wait_right", restart_if_active=True)
 
@@ -102,17 +106,17 @@ def main():
             self.sword = None
             self.hp = 100
             self.sprite = Sprite(8)
-            wait_right = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
-                                             scale=2)
-            wait_left = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
-                                            scale=2)
-            run_right = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
-                                            scale=2)
-            run_left = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
-                                           scale=2)
-            self.sprite.add_animation({"wait_right": wait_right, "wait_left": wait_left,
-                                        "run_right": run_right, "run_left": run_left}, loop=True)
-            self.sprite.start_animation("wait_left")
+            wait_r = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                         scale=2)
+            wait_l = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+                                         scale=2)
+            run_r = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                        scale=2)
+            run_l = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+                                        scale=2)
+            self.sprite.add_animation({"wait_r": wait_r, "wait_l": wait_l,
+                                       "run_r": run_r, "run_l": run_l}, loop=True)
+            self.sprite.start_animation("wait_l")
 
         def update(self, dt):
             if self.direction.x or self.direction.y:
@@ -120,15 +124,17 @@ def main():
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:
                 self.direction.y = -1
+                self.sprite.start_animation(f"run_{self.sprite.active_animation_key[-1]}", restart_if_active=False)
             elif keys[pygame.K_DOWN]:
                 self.direction.y = 1
+                self.sprite.start_animation(f"run_{self.sprite.active_animation_key[-1]}", restart_if_active=False)
             else:
                 self.direction.y = 0
             if keys[pygame.K_RIGHT]:
-                self.sprite.start_animation("run_right", restart_if_active=False)
+                self.sprite.start_animation("run_r", restart_if_active=False)
                 self.direction.x = 1
             elif keys[pygame.K_LEFT]:
-                self.sprite.start_animation("run_left", restart_if_active=False)
+                self.sprite.start_animation("run_l", restart_if_active=False)
                 self.direction.x = -1
             else:
                 self.direction.x = 0
@@ -137,18 +143,14 @@ def main():
             self.animation(dt)
 
         def animation(self, dt):
-            mouse_pos = camera_group.screen_to_wordl(pygame.mouse.get_pos())
-            # if not self.direction.x and not self.direction.y:
-            #     print(self.last_direction.x)
-            #     self.sprite.start_animation("wait_right", restart_if_active=False) if self.last_direction.x == 1 else self.sprite.start_animation("wait_left", restart_if_active=False)
-            if mouse_pos[0] > self.rect.centerx:
-                if self.sprite.active_animation_key[-4:] == "left" and not self.direction.x and not self.direction.y:
-                    self.sprite.start_animation('wait_right', restart_if_active=False)
-            if mouse_pos[0] < self.rect.centerx:
-                if self.sprite.active_animation_key[-5:] == "right" and not self.direction.x and not self.direction.y:
-                    self.sprite.start_animation('wait_left', restart_if_active=False)
             self.sprite.update(dt)
-            # print(self.last_direction, self.direction, self.animation_flag, self.current_frame_col)
+            mouse_pos = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+            if mouse_pos[0] > self.rect.centerx:
+                if not self.direction.x and not self.direction.y:
+                    self.sprite.start_animation('wait_r', restart_if_active=False)
+            if mouse_pos[0] < self.rect.centerx:
+                if not self.direction.x and not self.direction.y:
+                    self.sprite.start_animation('wait_l', restart_if_active=False)
 
         def get_draw_rect(self):
             return pygame.Rect(self.rect.x - 45, self.rect.y - 38, self.rect.w, self.rect.h)
@@ -160,7 +162,6 @@ def main():
             self.group = group
             self.image = image
             self.image.set_colorkey((0, 0, 0))
-            self.image.fill((210, 210, 210))
             self.rotated_surf = self.image.copy()
             self.rect = self.rotated_surf.get_rect()
             self.rect.center = self.entity.rect.center
@@ -194,21 +195,23 @@ def main():
                 coords = pygame.Vector2(self.entity.rect.center)
                 coords[0] += math.cos(self.angle) * 50
                 coords[1] += math.sin(self.angle) * 50
-                Bullet(0, (40, 40), coords, 0, 0.2, pygame.Surface((40, 40)), self.group, bullets)
+                Bullet(0, coords, 0, 0.2, pygame.Surface((40, 40)), self.group, bullets)
 
         def update(self, dt):
+            rotate = 0
             origin = self.entity.rect.center
             self.angle = get_angle_between(camera_group.screen_to_wordl(pygame.mouse.get_pos()),
                                            self.entity.rect.center)
-            angle = math.degrees(self.angle) + 135
+            angle = math.degrees(self.angle) + 145
             image_rect = self.image.get_rect(
                 topleft=(origin[0] - self.image.get_width(), origin[1] - self.image.get_height()))
-            if angle >= 35 and angle <= 210:
-                angle -= 65
+            if angle >= 55 and angle <= 235:
+                angle -= 100
+                rotate = 1
             offset_center_to_pivot = pygame.math.Vector2(origin) - image_rect.center
             rotated_offset = offset_center_to_pivot.rotate(angle)
             rotated_image_center = (origin[0] - rotated_offset.x, origin[1] - rotated_offset.y)
-            self.rotated_surf = pygame.transform.rotate(self.image, -angle)
+            self.rotated_surf = pygame.transform.rotate(pygame.transform.flip(self.image, rotate, 0), -angle)
             self.rect = self.rotated_surf.get_rect(center=rotated_image_center)
             self.rect.centerx += math.cos(self.angle) * 20
             self.rect.centery += math.sin(self.angle) * 20
@@ -217,9 +220,8 @@ def main():
         def shoot(self, speed):
             if self.timer < pygame.time.get_ticks():
                 self.timer = pygame.time.get_ticks() + 1000
-                image = load_image("arrow.png", (255, 255, 255))
-                image = pygame.transform.scale(image, (30, 15))
-                Bullet(speed, (30, 15), self.rect.center, self.angle, 10, image, self.group, bullets)
+                image = load_image("arrow.png", (255, 255, 255), (30, 15))
+                Bullet(speed, self.rect.center, self.angle, 10, image, self.group, bullets)
 
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
@@ -255,12 +257,11 @@ def main():
                 coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
                 pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
-
         def screen_to_wordl(self, coords):
             return coords + self.offset
 
     class Bullet(pygame.sprite.Sprite):
-        def __init__(self, speed, size, coords, angle, time_disappear, image, *group):
+        def __init__(self, speed, coords, angle, time_disappear, image, *group):
             super().__init__(*group)
             self.x, self.y = coords
             self.angle = angle
@@ -288,9 +289,9 @@ def main():
 
         def draw(self, sreen, rect):
             sreen.blit(self.surf, rect)
+
         def get_surf(self):
             return self.surf
-
 
     running = True
     enemies = pygame.sprite.Group()
@@ -327,7 +328,8 @@ def main():
                         if player.bow:
                             player.bow.kill()
                             player.bow = None
-                        player.sword = Sword(pygame.Surface((10, 50)), player, camera_group)
+                        sword_image = load_image('sword.png', (0, 0, 0), (16, 64))
+                        player.sword = Sword(sword_image, player, camera_group)
                     else:
                         player.sword.kill()
                         player.sword = None

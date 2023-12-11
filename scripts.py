@@ -9,7 +9,8 @@ def rot_center(image, angle, x, y):
     new_rect = rotated_image.get_rect(center=image.get_rect(center=(x, y)).center)
 
     return rotated_image, new_rect
-def load_image(name, colorkey=None):
+
+def load_image(name, colorkey=None, scale=None, flip=None):
     fullname = os.path.join('sprites', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -23,6 +24,10 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
+    if scale:
+        image = pygame.transform.scale(image, scale)
+    if flip:
+        image = pygame.transform.flip(image, *flip)
     return image
 
 def get_angle_between(coords1, coords2):

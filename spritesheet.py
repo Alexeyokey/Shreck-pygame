@@ -3,17 +3,6 @@ import time
 import sys
 
 
-class SpriteSheet:
-    def __init__(self, image):
-        self.sheet = image
-
-    def get_image(self, frame, width, height, scale, color_key):
-        image = pygame.Surface((width, height)).convert_alpha()
-        image.blit(self.sheet, (0, 0), (frame[0] * width, frame[1] * height, width, height))
-        image = pygame.transform.scale(image, (width * scale, height * scale))
-        image.set_colorkey(color_key)
-        return image
-
 
 class Animation(object):
     def __init__(self, surface, sheet_size=(1, 1), frame_count=1, rect=None,
