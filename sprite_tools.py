@@ -1,9 +1,4 @@
 import pygame
-import time
-import sys
-
-
-
 class Animation(object):
     def __init__(self, surface, sheet_size=(1, 1), frame_count=1, rect=None,
                  reverse_x=False, reverse_y=False, reverse_animation=False, colorkey=None, scale=1.0, start_frame=0):
@@ -25,8 +20,8 @@ class Animation(object):
         rect = (0, 0, surface.get_width(), surface.get_height()) if rect is None else rect
         rect = pygame.Rect(*rect)
         pixel_width, pixel_height = rect.width, rect.height
-        frame_width = pixel_width//sheet_size[0]
-        frame_height = pixel_height//sheet_size[1]
+        frame_width = pixel_width // sheet_size[0]
+        frame_height = pixel_height // sheet_size[1]
         frames = []
         frame_x = 0
         frame_y = 0
@@ -104,13 +99,13 @@ class Sprite(pygame.sprite.Sprite):
         fps = self.fps
         if self.active_animation_key in self.animation_fps_overrides:
             fps = self.animation_fps_overrides[self.active_animation_key]
-        frame_time = 1.0/fps
-        frame_number = int(self.now/frame_time)
+        frame_time = 1.0 / fps
+        frame_number = int(self.now / frame_time)
         return frame_number
 
     def get_image(self):
         active_animation = self.animations[self.active_animation_key]
-        frame_time = 1/self.fps
+        frame_time = 1 / self.fps
         frame_number = self.get_frame_num()
         if frame_number >= active_animation.frame_count:
             new_animation_exists = self.on_animation_finished(self.active_animation_key)
@@ -155,8 +150,8 @@ class Sprite(pygame.sprite.Sprite):
         self.image = self.get_image()
         w = self.image.get_width()
         h = self.image.get_height()
-        x = int(self.x - w/2)
-        y = int(self.y - h/2)
+        x = int(self.x - w / 2)
+        y = int(self.y - h / 2)
         self.rect = pygame.Rect(x, y, w, h)
 
     def set_position(self, pos):

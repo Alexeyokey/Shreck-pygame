@@ -7,7 +7,6 @@ class Block:
         self.__through = through
         self.__surface = surface
         self.__rect = self.__surface.get_rect()
-        # self.__surface.blit(image, (0, 0))
 
     def get_through(self):
         return self.__through
