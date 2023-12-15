@@ -1,5 +1,5 @@
 def first_level():
-    speed = 40
+    speed = 100
     hp = 100
     start_pos = (800, 500)
     enemy_shape = (40, 40)
@@ -13,7 +13,7 @@ def first_level():
 
 
 def second_level():
-    speed = 40
+    speed = 100
     hp = 100
     start_pos = (800, 500)
     enemy_shape = (40, 40)
