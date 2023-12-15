@@ -63,7 +63,7 @@ class PhysicsObj(object):
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, speed, rect, image_shape, groups_to_collide, *group):
+    def __init__(self, speed, hp, rect, image_shape, groups_to_collide, *group):
         super().__init__(*group)
         x, y, width, height = rect
         self.rect = pygame.Rect(x, y, width, height)
@@ -78,6 +78,7 @@ class Entity(pygame.sprite.Sprite):
         self.sprite = None
         self.speed = speed
         self.cur_speed = speed
+        self.hp = hp
         self.set_cur_speed(self.speed)
 
     def move(self, movement, objects):

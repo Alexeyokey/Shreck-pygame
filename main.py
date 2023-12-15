@@ -6,6 +6,7 @@ from entities import PhysicsObj, Entity
 from particles import create_particles
 from scripts import get_angle_between, load_image
 from sprite_tools import Sprite, Animation
+from levels import first_level, second_level
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
@@ -29,7 +30,7 @@ def start():
             elif event.type == QUIT:
                 menu = False
         main_font = pygame.font.Font(None, 72)
-        game_over = pygame.font.Font(None, 144).render('Welcome to Shrek', 1, (255, 255, 255))
+        welcome = pygame.font.Font(None, 144).render('Welcome to Shrek', 1, (255, 255, 255))
         retry = (main_font.render('START', 1, (255, 255, 255)), (200, 100), "start")
         back_to_menu = (main_font.render('SETTINGS', 1, (255, 255, 255)), (400, 100), "settings")
         buttons = {}
@@ -40,8 +41,8 @@ def start():
                                  SCREEN_HEIGHT // 2 + index * 150, button_size, i[0], 1)
             button.draw_button()
             buttons[i[2]] = button
-        screen.blit(game_over, (
-            SCREEN_WIDTH // 2 - game_over.get_width() // 2, SCREEN_HEIGHT // 2 - game_over.get_height() // 2 - 100))
+        screen.blit(welcome, (
+            SCREEN_WIDTH // 2 - welcome.get_width() // 2, SCREEN_HEIGHT // 2 - welcome.get_height() // 2 - 100))
         if buttons['start'].pressed(pygame.mouse.get_pos()):
             menu = False
             main()
@@ -52,13 +53,12 @@ def start():
 
 def main():
     class Enemy(Entity):
-        def __init__(self, speed, coords, image_shape, groups_to_collide, *group):
-            super().__init__(speed, (coords[0], coords[1], image_shape[0], image_shape[1]), image_shape, groups_to_collide, *group)
+        def __init__(self, speed, hp, coords, image_shape, groups_to_collide, *group):
+            super().__init__(speed, hp, (coords[0], coords[1], image_shape[0], image_shape[1]), image_shape, groups_to_collide, *group)
             self.surf = pygame.Surface(image_shape)
             self.surf.set_colorkey((0, 0, 0))
             self.rect = pygame.Rect((coords[0], coords[1], image_shape[0], image_shape[1]))
             self.rect.topleft = coords
-            self.hp = 100
             self.sprite = Sprite(8)
             self.sword = None
             self.bow = None
@@ -108,15 +108,14 @@ def main():
             return pygame.Rect(self.rect.x - 20, self.rect.y - 30, self.rect.w, self.rect.h)
 
     class Player(Entity):
-        def __init__(self, speed, rect, image_shape, groups_to_collide, *group):
-            super().__init__(speed, rect, image_shape, groups_to_collide, *group)
+        def __init__(self, speed, hp, rect, image_shape, groups_to_collide, *group):
+            super().__init__(speed, hp, rect, image_shape, groups_to_collide, *group)
             self.x, self.y, self.width, self.height = rect[0], rect[1], rect[2], rect[3]
             self.animation_flag = True
             self.particle_flag = False
             self.last_direction = [0, 0]
             self.bow = None
             self.sword = None
-            self.hp = 100
             self.sprite = Sprite(8)
             self.particle_time_start = None
             self.particle_color = "#ffb476"
@@ -211,9 +210,10 @@ def main():
             return pygame.Rect(self.rect.x - 45, self.rect.y - 38, self.rect.w, self.rect.h)
 
     class Weapon(pygame.sprite.Sprite):
-        def __init__(self, image, entity, attacking_group, *group):
+        def __init__(self, image, entity, target, shot_delay, attacking_group, *group):
             super().__init__(*group)
             self.entity = entity
+            self.target = target
             self.group = group
             self.attacking_group = attacking_group
             self.image = image
@@ -221,12 +221,16 @@ def main():
             self.rotated_surf = self.image.copy()
             self.rect = self.rotated_surf.get_rect()
             self.rect.center = self.entity.rect.center
+            self.shot_delay = shot_delay * 1000
             self.timer = pygame.time.get_ticks()
             self.angle = 0
 
         def update(self, dt) -> None:
-            self.angle = get_angle_between(camera_group.screen_to_wordl(pygame.mouse.get_pos()),
-                                           self.entity.rect.center)
+            if not self.target:
+                target = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+            else:
+                target = self.target.get_rect().center
+            self.angle = get_angle_between(target, self.entity.rect.center)
             self.rotated_surf = pygame.transform.rotate(self.image, -math.degrees(self.angle))
             rect = self.rotated_surf.get_rect(center=self.entity.rect.center)
             self.rect = rect
@@ -244,21 +248,20 @@ def main():
             return self.rotated_surf
 
     class Sword(Weapon):
-        def __init__(self, image, entity, attacking_group, target, *group):
-            super().__init__(image, entity, attacking_group, *group)
+        def __init__(self, image, entity, target, shot_delay,  attacking_group, *group):
+            super().__init__(image, entity, target, shot_delay, attacking_group, *group)
             self.sprite = Sprite(4)
-            self.target = target
             idle_left = Animation.from_path('sprites/sword.png', reverse_x=False, scale=2)
             idle_right = Animation.from_path('sprites/sword.png', reverse_x=True, scale=2)
             self.sprite.add_animation({"wait_left": idle_left, "wait_right": idle_right}, loop=True)
 
         def attack(self):
             if self.timer < pygame.time.get_ticks():
-                self.timer = pygame.time.get_ticks() + 1000
+                self.timer = pygame.time.get_ticks() + self.shot_delay
                 coords = pygame.Vector2(self.entity.rect.center)
                 coords[0] += math.cos(self.angle) * 60
                 coords[1] += math.sin(self.angle) * 50
-                Bullet(0, coords, 0, 0.2, pygame.Surface((60, 60)), self.attacking_group, self.group)
+                Bullet(0, 100, coords, 0, 0.0000001, pygame.Surface((60, 60)), self.attacking_group, self.group)
 
         def update(self, dt):
             if not self.target:
@@ -292,9 +295,9 @@ def main():
     class Bow(Weapon):
         def shoot(self, speed):
             if self.timer < pygame.time.get_ticks():
-                self.timer = pygame.time.get_ticks() + 1000
+                self.timer = pygame.time.get_ticks() + self.shot_delay
                 image = load_image("arrow.png", (255, 255, 255), (30, 15))
-                Bullet(speed, self.rect.center, self.angle, 10, image, self.attacking_group, self.group)
+                Bullet(speed, 100, self.rect.center, self.angle, 10, image, self.attacking_group, self.group)
 
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
@@ -340,7 +343,7 @@ def main():
             return coords + self.offset
 
     class Bullet(pygame.sprite.Sprite):
-        def __init__(self, speed, coords, angle, time_disappear, image, *group):
+        def __init__(self, speed, damage, coords, angle, time_disappear, image, *group):
             super().__init__(*group)
             self.x, self.y = coords
             self.angle = angle
@@ -352,6 +355,7 @@ def main():
             self.rect = self.surf.get_rect()
             self.rect.center = coords
             self.speed = speed
+            self.damage = damage
 
         def update(self, dt):
             self.x += math.cos(self.angle) * self.speed * dt
@@ -378,14 +382,16 @@ def main():
     camera_group = CameraGroup()
     enemy_bullets = pygame.sprite.Group()
     player_bullets = pygame.sprite.Group()
-    player = Player(100, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64), [], camera_group)
+    player = Player(100, 100, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64), [], camera_group)
     player.set_cur_speed(120)
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
-    n_enemies = 1
-    game_over = 0
+    game_over = None
     tmx_data = load_pygame('map/map.tmx')
     map = Map(tmx_data)
+    levels = iter([first_level(), second_level()])
+    screen_messages = []
+    cur_level_counter = 0
     while running:
         dt = clock.tick(60)
         dt = dt / 1000
@@ -399,7 +405,7 @@ def main():
                         if player.sword:
                             player.sword.kill()
                             player.sword = None
-                        player.bow = Bow(pygame.Surface((15, 40)), player, player_bullets, camera_group)
+                        player.bow = Bow(pygame.Surface((15, 40)), player, None, 1, player_bullets, camera_group)
                     else:
                         player.bow.kill()
                         player.bow = None
@@ -409,7 +415,7 @@ def main():
                             player.bow.kill()
                             player.bow = None
                         sword_image = load_image('sword.png', (0, 0, 0), (16, 64))
-                        player.sword = Sword(sword_image, player, player_bullets, None, camera_group)
+                        player.sword = Sword(sword_image, player, None, 1, player_bullets, camera_group)
                     else:
                         player.sword.kill()
                         player.sword = None
@@ -417,35 +423,63 @@ def main():
                 running = False
         if not game_over:
             pressed_keys = pygame.key.get_pressed()
-            if pygame.time.get_ticks() > timer:
-                timer += 100000
-                enemy = Enemy(50, (300, 300), (40, 40), [player, *enemies], camera_group, enemies)
-                sword_image = load_image('sword.png', (0, 0, 0), (16, 64))
-                enemy.sword = Sword(sword_image, enemy, enemy_bullets, player, camera_group)
-            if pressed_keys[K_q] and player.bow:
-                player.bow.shoot(500)
-            if pressed_keys[K_q] and player.sword:
-                player.sword.attack()
-            camera_group.update(dt)
-            particle_group.update(dt)
-            camera_group.custom_draw(screen, map.get_layers(), player)
-            for i in enemies:
-                if i.sword:
-                    i.sword.attack()
-                if pygame.sprite.spritecollideany(i, player_bullets):
-                    i.kill()
-                    if i.sword:
-                        i.sword.kill()
-                    if i.bow:
-                        i.bow.kill()
-            if pygame.sprite.spritecollideany(player, enemy_bullets):
-                player.hp -= 100
-            if player.hp <= 0:
-                player.kill()
-                game_over = 1
+            if not enemies:
+                cur_level_counter += 1
+                wave = pygame.font.Font(None, 144).render(f'wave {cur_level_counter}', 1, (255, 255, 255))
+                wave_2 = pygame.font.Font(None, 150).render(f'wave {cur_level_counter}', 1, (0, 0, 0))
+                pos = screen.get_size()[0] // 2 - wave.get_width() // 2, screen.get_size()[1] // 2 - wave.get_height() * 2.5
+                pos_2 = screen.get_size()[0] // 2 - wave_2.get_width() // 2, screen.get_size()[1] // 2 - wave_2.get_height() * 2.5
+                screen_messages.append(((wave_2, pos_2, pygame.time.get_ticks(), 5000), (wave, pos, pygame.time.get_ticks(), 5000)))
+                cur_level = next(levels, "end")
+                timer = pygame.time.get_ticks()
+                if cur_level == "end":
+                    game_over = "victory"
+            if not game_over:
+                if pygame.time.get_ticks() >= timer:
+                    timer += cur_level[-1] * 1000
+                    for enemy_inf in cur_level[0]:
+                        enemy = Enemy(enemy_inf[0], enemy_inf[1], enemy_inf[2], enemy_inf[3], [player, *enemies], camera_group, enemies)
+                        if enemy_inf[-2] == "sword":
+                            sword_image = load_image('sword.png', (0, 0, 0), (16, 64))
+                            enemy.sword = Sword(sword_image, enemy, player, enemy_inf[-1], enemy_bullets, camera_group)
+                        elif enemy_inf[-2] == "bow":
+                            enemy.bow = Bow(pygame.Surface((30, 10)), enemy, player, enemy_inf[-1], enemy_bullets, camera_group)
+                if pressed_keys[K_q] and player.bow:
+                    player.bow.shoot(500)
+                if pressed_keys[K_q] and player.sword:
+                    player.sword.attack()
+                camera_group.update(dt)
+                particle_group.update(dt)
+                camera_group.custom_draw(screen, map.get_layers(), player)
+                for enemy in enemies:
+                    if enemy.sword:
+                        enemy.sword.attack()
+                    if enemy.bow:
+                        enemy.bow.shoot(300)
+                    if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
+                        if enemy.sword:
+                            enemy.sword.kill()
+                        if enemy.bow:
+                            enemy.bow.kill()
+                        enemy.hp -= collided_sprite.damage
+                        collided_sprite.kill()
+                    if enemy.hp <= 0:
+                        enemy.kill()
+                if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
+                    player.hp -= bullet.damage
+                    bullet.kill()
+                if player.hp <= 0:
+                    player.kill()
+                    game_over = "victory"
+                for message_box in screen_messages:
+                    for message in message_box:
+                        screen.blit(message[0], message[1])
+                        if pygame.time.get_ticks() - message[2] >= message[3]:
+                            screen_messages.remove(message_box)
+                            break
         else:
             main_font = pygame.font.Font(None, 72)
-            game_over = pygame.font.Font(None, 144).render('Game Over', 1, (255, 255, 255))
+            title = pygame.font.Font(None, 144).render(str(game_over), 1, (255, 255, 255))
             retry = (main_font.render('Retry', 1, (255, 255, 255)), (200, 100), "retry")
             back_to_menu = (main_font.render('Back to menu', 1, (255, 255, 255)), (400, 100), "back")
             buttons = {}
@@ -456,8 +490,8 @@ def main():
                                      SCREEN_HEIGHT // 2 + index * 150, button_size, i[0], 1)
                 button.draw_button()
                 buttons[i[2]] = button
-            screen.blit(game_over, (
-                SCREEN_WIDTH // 2 - game_over.get_width() // 2, SCREEN_HEIGHT // 2 - game_over.get_height() // 2 - 100))
+            screen.blit(title, (
+                SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 2 - title.get_height() // 2 - 100))
             if buttons['retry'].pressed(pygame.mouse.get_pos()):
                 running = False
                 main()
