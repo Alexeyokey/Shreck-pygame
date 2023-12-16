@@ -259,12 +259,24 @@ def main():
         def __init__(self, image, entity, target, shot_delay,  attacking_group, *group):
             super().__init__(image, entity, target, shot_delay, attacking_group, *group)
             self.sprite = Sprite(4)
-            idle_left = Animation.from_path('sprites/sword.png', reverse_x=False, scale=2)
-            idle_right = Animation.from_path('sprites/sword.png', reverse_x=True, scale=2)
-            self.sprite.add_animation({"wait_left": idle_left, "wait_right": idle_right}, loop=True)
+            self.direction = 'right'
+            self.state = 'idle'
+            idle_left = Animation.from_path('sprites/sword.png', reverse_x=True, scale=2)
+            idle_right = Animation.from_path('sprites/sword.png', reverse_x=False, scale=2)
+            attack_right = Animation.from_path('sprites/attacking_sword.png', (4, 1), 4, reverse_x=False, scale=2)
+            attack_left = Animation.from_path('sprites/attacking_sword_left.png', (4, 1), 4, reverse_x=False, scale=2, reverse_animation=True)
+            self.sprite.add_animation({"idle_left": idle_left, "idle_right": idle_right}, loop=True, fps_override=1)
+            self.sprite.add_animation({"attack_right": attack_right, "attack_left": attack_left}, loop=False)
+            self.sprite.add_callback('attack_right', self.change_to_idle)
+            self.sprite.add_callback('attack_left', self.change_to_idle)
+            self.sprite.start_animation('idle_right')
+
+        def change_to_idle(self):
+            self.state = 'idle'
 
         def attack(self):
             if self.timer < pygame.time.get_ticks():
+                self.state = 'attack'
                 self.timer = pygame.time.get_ticks() + self.shot_delay
                 coords = pygame.Vector2(self.entity.rect.center)
                 coords[0] += math.cos(self.angle) * 60
@@ -276,36 +288,64 @@ def main():
                 target = camera_group.screen_to_wordl(pygame.mouse.get_pos())
             else:
                 target = self.target.get_rect().center
-            origin_center = self.entity.rect.center
+            origin_center = self.entity.get_rect().center
             self.angle = get_angle_between(target,
                                            self.entity.rect.center)
             angle = math.degrees(self.angle) + 145
-            image_rect = self.image.get_rect(
-                topleft=(origin_center[0] - self.image.get_width(), origin_center[1] - self.image.get_height()))
-            if angle >= 55 and angle <= 235:
+            if angle > 55 and angle < 235:
                 angle -= 100
-                self.sprite.start_animation("wait_right", restart_if_active=False)
+                self.direction = 'right'
             else:
-                self.sprite.start_animation("wait_left", restart_if_active=False)
+                self.direction = 'left'
+            image_rect = self.image.get_rect(
+                center=(origin_center[0], origin_center[1]))
             offset_center_to_pivot = pygame.math.Vector2(origin_center) - image_rect.center
             rotated_offset = offset_center_to_pivot.rotate(angle)
             rotated_image_center = (origin_center[0] - rotated_offset.x, origin_center[1] - rotated_offset.y)
             self.rotated_surf = pygame.transform.rotate(self.image, -angle)
             self.rect = self.rotated_surf.get_rect(center=rotated_image_center)
-            self.rect.centerx += math.cos(self.angle) * 20
-            self.rect.centery += math.sin(self.angle) * 20
-            self.sprite.update(dt)
+            self.rect.centerx += math.cos(self.angle) * 50
+            self.rect.centery += math.sin(self.angle) * 50
+            self.sprite.start_animation(self.state + '_' + self.direction, restart_if_active=False)
             self.sprite.set_angle(-angle)
+            self.sprite.update(dt)
+
+        def draw(self, surface, rect):
+            if self.state != 'attack' or self.direction == 'right':
+                self.sprite.draw(surface, self.rect.topleft - camera_group.offset)
+            else:
+                coords = self.rect.topleft[0] - self.image.get_width(), self.rect.topleft[1]
+                self.sprite.draw(surface, coords - camera_group.offset)
+
+
+    class Bow(Weapon):
+        def __init__(self, image, entity, target, shot_delay, arrow_speed, attacking_group, *group):
+            super().__init__(image, entity, target, shot_delay, attacking_group, *group)
+            self.sprite = Sprite(4)
+            self.arrow_speed = arrow_speed
+            idle = Animation.from_path('sprites/bow.png', (4, 1), 1, reverse_x=False, scale=2.5)
+            attack = Animation.from_path('sprites/bow.png', (4, 1), 4, reverse_x=False, scale=2.5)
+            self.sprite.add_animation({"idle": idle, "attack": attack})
+            self.sprite.start_animation('idle')
+            self.sprite.add_callback("attack", lambda: self.sprite.start_animation('idle'))
+            self.sprite.add_callback("attack", lambda: self.shoot(self.arrow_speed))
+
+        def bow_tense(self):
+            if self.timer < pygame.time.get_ticks():
+                self.sprite.start_animation("attack")
+                self.timer = pygame.time.get_ticks() + self.shot_delay
+
+        def shoot(self, speed):
+            image = load_image("arrow_demo.png", (255, 255, 255), (30, 10))
+            Bullet(speed, 50, "arrow", self.rect.center, self.angle, 10, image, self.attacking_group, self.group)
+
+        def update(self, dt):
+            super().update(dt)
+            self.sprite.update(dt)
+            self.sprite.set_angle(-math.degrees(self.angle))
 
         def draw(self, surface, rect):
             self.sprite.draw(surface, rect)
-
-    class Bow(Weapon):
-        def shoot(self, speed):
-            if self.timer < pygame.time.get_ticks():
-                self.timer = pygame.time.get_ticks() + self.shot_delay
-                image = load_image("arrow.png", (255, 255, 255), (30, 15))
-                Bullet(speed, 50, "arrow", self.rect.center, self.angle, 10, image, self.attacking_group, self.group)
 
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
@@ -422,7 +462,7 @@ def main():
                         if player.sword:
                             player.sword.kill()
                             player.sword = None
-                        player.bow = Bow(pygame.Surface((15, 40)), player, None, 1, player_bullets, camera_group)
+                        player.bow = Bow(pygame.Surface((15, 40)), player, None, 1, 500, player_bullets, camera_group)
                     else:
                         player.bow.kill()
                         player.bow = None
@@ -431,14 +471,14 @@ def main():
                         if player.bow:
                             player.bow.kill()
                             player.bow = None
-                        sword_image = load_image('sword.png', (0, 0, 0), (16, 64))
+                        sword_image = pygame.Surface((16, 64))
                         player.sword = Sword(sword_image, player, None, 1, player_bullets, camera_group)
                     else:
                         player.sword.kill()
                         player.sword = None
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if player.bow:
-                    player.bow.shoot(500)
+                    player.bow.bow_tense()
                 elif player.sword:
                     player.sword.attack()
             elif event.type == QUIT:
@@ -461,10 +501,10 @@ def main():
                     for enemy_inf in cur_level[0]:
                         enemy = Enemy(enemy_inf[0], enemy_inf[1], enemy_inf[2], enemy_inf[3], [player, *enemies], camera_group, enemies)
                         if enemy_inf[-2] == "sword":
-                            sword_image = load_image('sword.png', (0, 0, 0), (16, 64))
+                            sword_image = pygame.Surface((16, 64))
                             enemy.sword = Sword(sword_image, enemy, player, enemy_inf[-1], enemy_bullets, camera_group)
                         elif enemy_inf[-2] == "bow":
-                            enemy.bow = Bow(pygame.Surface((30, 10)), enemy, player, enemy_inf[-1], enemy_bullets, camera_group)
+                            enemy.bow = Bow(pygame.Surface((30, 10)), enemy, player, enemy_inf[-1], 300,  enemy_bullets, camera_group)
                 camera_group.update(dt)
                 particle_group.update(dt)
                 camera_group.custom_draw(screen, map.get_layers(), player)
@@ -472,7 +512,7 @@ def main():
                     if enemy.sword:
                         enemy.sword.attack()
                     if enemy.bow:
-                        enemy.bow.shoot(300)
+                        enemy.bow.bow_tense()
                     if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
                         enemy.hp -= collided_sprite.damage
                         collided_sprite.collide_action()
@@ -487,6 +527,10 @@ def main():
                 if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
                     player.hp -= bullet.damage
                     bullet.kill()
+                for i in enemy_bullets:
+                    if bullet := pygame.sprite.spritecollideany(i, player_bullets):
+                        i.kill()
+                        bullet.kill()
                 if player.hp <= 0:
                     player.kill()
                     game_over = "Game over"

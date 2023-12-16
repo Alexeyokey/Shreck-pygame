@@ -112,17 +112,16 @@ class Sprite(pygame.sprite.Sprite):
             if not new_animation_exists:
                 self.pause()
                 self.now = frame_time * (len(active_animation.frames) - 0.5)
-                return active_animation.frames[-1]
+                image = active_animation.frames[-1]
+                if self.angle != 0:
+                    image = pygame.transform.rotate(image, self.angle)
+                return image
             self.now -= frame_time * active_animation.frame_count
             return self.get_image()
 
         image = active_animation.frames[frame_number]
-        if self.angle != 0:
-            image = pygame.transform.rotate(image, self.angle)
+        image = pygame.transform.rotate(image, self.angle)
         return image
-
-    def update_image(self):
-        self.image = self.get_image()
 
     def set_angle(self, angle):
         self.angle = angle
