@@ -233,16 +233,6 @@ def main():
             self.timer = pygame.time.get_ticks()
             self.angle = 0
 
-        def update(self, dt) -> None:
-            if not self.target:
-                target = camera_group.screen_to_wordl(pygame.mouse.get_pos())
-            else:
-                target = self.target.get_rect().center
-            self.angle = get_angle_between(target, self.entity.rect.center)
-            self.rotated_surf = pygame.transform.rotate(self.image, -math.degrees(self.angle))
-            rect = self.rotated_surf.get_rect(center=self.entity.rect.center)
-            self.rect = rect
-
         def get_rect(self):
             return self.rect
 
@@ -256,8 +246,9 @@ def main():
             return self.rotated_surf
 
     class Sword(Weapon):
-        def __init__(self, image, entity, target, shot_delay,  attacking_group, *group):
+        def __init__(self, image, entity, target, shot_delay, damage_area, attacking_group, *group):
             super().__init__(image, entity, target, shot_delay, attacking_group, *group)
+            self.damage_area = damage_area
             self.sprite = Sprite(4)
             self.direction = 'right'
             self.state = 'idle'
@@ -281,7 +272,7 @@ def main():
                 coords = pygame.Vector2(self.entity.rect.center)
                 coords[0] += math.cos(self.angle) * 60
                 coords[1] += math.sin(self.angle) * 50
-                Bullet(0, 100, "sword_attack", coords, 0, 0.02, pygame.Surface((60, 60)), self.attacking_group, self.group)
+                Bullet(0, 100, "sword_attack", coords, 0, 0.02, pygame.Surface(self.damage_area), self.attacking_group, self.group)
 
         def update(self, dt):
             if not self.target:
@@ -304,8 +295,8 @@ def main():
             rotated_image_center = (origin_center[0] - rotated_offset.x, origin_center[1] - rotated_offset.y)
             self.rotated_surf = pygame.transform.rotate(self.image, -angle)
             self.rect = self.rotated_surf.get_rect(center=rotated_image_center)
-            self.rect.centerx += math.cos(self.angle) * 50
-            self.rect.centery += math.sin(self.angle) * 50
+            self.rect.centerx += math.cos(self.angle) * self.entity.rect.w
+            self.rect.centery += math.sin(self.angle) * self.entity.rect.h
             self.sprite.start_animation(self.state + '_' + self.direction, restart_if_active=False)
             self.sprite.set_angle(-angle)
             self.sprite.update(dt)
@@ -316,7 +307,6 @@ def main():
             else:
                 coords = self.rect.topleft[0] - self.image.get_width(), self.rect.topleft[1]
                 self.sprite.draw(surface, coords - camera_group.offset)
-
 
     class Bow(Weapon):
         def __init__(self, image, entity, target, shot_delay, arrow_speed, attacking_group, *group):
@@ -336,16 +326,27 @@ def main():
                 self.timer = pygame.time.get_ticks() + self.shot_delay
 
         def shoot(self, speed):
-            image = load_image("arrow_demo.png", (255, 255, 255), (30, 10))
+            image = load_image("arrow.png", (255, 255, 255), (30, 10))
             Bullet(speed, 50, "arrow", self.rect.center, self.angle, 10, image, self.attacking_group, self.group)
 
         def update(self, dt):
-            super().update(dt)
+            if not self.target:
+                target = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+            else:
+                target = self.target.get_rect().center
+            self.angle = get_angle_between(target, self.entity.rect.center)
+            self.rotated_surf = pygame.transform.rotate(self.image, -math.degrees(self.angle))
+            rect = self.rotated_surf.get_rect(center=self.entity.rect.center)
+            self.rect = rect
             self.sprite.update(dt)
             self.sprite.set_angle(-math.degrees(self.angle))
 
-        def draw(self, surface, rect):
-            self.sprite.draw(surface, rect)
+        def get_draw_rect(self):
+            rect = self.rect
+            return rect
+
+        def draw(self, surface, coords):
+            self.sprite.draw(surface, coords)
 
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
@@ -446,8 +447,10 @@ def main():
     map = Map(tmx_data)
     levels = iter([first_level(), second_level()])
     screen_messages = []
+    score = 0
     cur_level_counter = 0
     previous_time = 0
+    player_movement_registered = False
     while running:
         clock.tick(60)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
@@ -455,6 +458,9 @@ def main():
         screen.fill((75, 122, 71))
         for event in pygame.event.get():
             if event.type == KEYDOWN:
+                # if event.key == 1073742085:
+                #     print(event.key)
+                player_movement_registered = True
                 if event.key == K_ESCAPE:
                     running = False
                 elif event.key == K_r:
@@ -462,7 +468,7 @@ def main():
                         if player.sword:
                             player.sword.kill()
                             player.sword = None
-                        player.bow = Bow(pygame.Surface((15, 40)), player, None, 1, 500, player_bullets, camera_group)
+                        player.bow = Bow(pygame.Surface((40, 40)), player, None, 1, 500, player_bullets, camera_group)
                     else:
                         player.bow.kill()
                         player.bow = None
@@ -472,7 +478,7 @@ def main():
                             player.bow.kill()
                             player.bow = None
                         sword_image = pygame.Surface((16, 64))
-                        player.sword = Sword(sword_image, player, None, 1, player_bullets, camera_group)
+                        player.sword = Sword(sword_image, player, None, 1, (70, 70), player_bullets, camera_group)
                     else:
                         player.sword.kill()
                         player.sword = None
@@ -495,17 +501,25 @@ def main():
                 timer = pygame.time.get_ticks()
                 if cur_level == "end":
                     game_over = "victory"
-            if not game_over:
-                if pygame.time.get_ticks() >= timer:
-                    timer += cur_level[-1] * 1000
+                player_movement_registered = False
+                if not game_over:
+                    player.physic_obg.x = cur_level[2][0]
+                    player.physic_obg.y = cur_level[2][1]
+                    player.update(dt)
+                    timer += cur_level[1] * 1000
                     for enemy_inf in cur_level[0]:
-                        enemy = Enemy(enemy_inf[0], enemy_inf[1], enemy_inf[2], enemy_inf[3], [player, *enemies], camera_group, enemies)
+                        enemy = Enemy(enemy_inf[0], enemy_inf[1], enemy_inf[2], enemy_inf[3], [player, *enemies],
+                                      camera_group, enemies)
                         if enemy_inf[-2] == "sword":
                             sword_image = pygame.Surface((16, 64))
-                            enemy.sword = Sword(sword_image, enemy, player, enemy_inf[-1], enemy_bullets, camera_group)
+                            enemy.sword = Sword(sword_image, enemy, player, enemy_inf[-1], (70, 70), enemy_bullets,
+                                                camera_group)
                         elif enemy_inf[-2] == "bow":
-                            enemy.bow = Bow(pygame.Surface((30, 10)), enemy, player, enemy_inf[-1], 300,  enemy_bullets, camera_group)
-                camera_group.update(dt)
+                            enemy.bow = Bow(pygame.Surface((40, 40)), enemy, player, enemy_inf[-1], 300, enemy_bullets,
+                                            camera_group)
+            if not game_over:
+                if player_movement_registered:
+                    camera_group.update(dt)
                 particle_group.update(dt)
                 camera_group.custom_draw(screen, map.get_layers(), player)
                 for enemy in enemies:
@@ -524,11 +538,12 @@ def main():
                             enemy.bow.kill()
                             enemy.bow = None
                         enemy.kill()
+                        score += 100
                 if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
                     player.hp -= bullet.damage
                     bullet.kill()
                 for i in enemy_bullets:
-                    if bullet := pygame.sprite.spritecollideany(i, player_bullets):
+                    if (bullet := pygame.sprite.spritecollideany(i, player_bullets)) and (i.type == 'sword_attack' or bullet.type == 'sword_attack'):
                         i.kill()
                         bullet.kill()
                 if player.hp <= 0:
@@ -543,6 +558,7 @@ def main():
         else:
             main_font = pygame.font.Font(None, 72)
             title = pygame.font.Font(None, 144).render(str(game_over), 1, (255, 255, 255))
+            total_score = main_font.render(f'Total score:{score}', 1, (255, 255, 255))
             retry = (main_font.render('Retry', 1, (255, 255, 255)), (200, 100), "retry")
             back_to_menu = (main_font.render('Back to menu', 1, (255, 255, 255)), (400, 100), "back")
             buttons = {}
@@ -554,7 +570,9 @@ def main():
                 button.draw_button()
                 buttons[i[2]] = button
             screen.blit(title, (
-                SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 2 - title.get_height() // 2 - 100))
+                SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 2 - title.get_height() // 2 - 200))
+            screen.blit(total_score, (
+                SCREEN_WIDTH // 2 - total_score.get_width() // 2 , SCREEN_HEIGHT // 2 + total_score.get_height() // 2 - 100))
             if buttons['retry'].pressed(pygame.mouse.get_pos()):
                 running = False
                 main()
