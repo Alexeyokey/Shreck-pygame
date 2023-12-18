@@ -449,10 +449,12 @@ def main():
     screen_messages = []
     score = 0
     cur_level_counter = 0
-    previous_time = 0
+    previous_time = pygame.time.get_ticks()
     player_movement_registered = False
+    first_update = True
     while running:
-        clock.tick(60)
+        dt = clock.tick(60) / 1000
+        print(pygame.time.get_ticks() - previous_time)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
         previous_time = pygame.time.get_ticks()
         screen.fill((75, 122, 71))
@@ -502,6 +504,7 @@ def main():
                 if cur_level == "end":
                     game_over = "victory"
                 player_movement_registered = False
+                first_update = True
                 if not game_over:
                     player.physic_obg.x = cur_level[2][0]
                     player.physic_obg.y = cur_level[2][1]
@@ -518,8 +521,9 @@ def main():
                             enemy.bow = Bow(pygame.Surface((40, 40)), enemy, player, enemy_inf[-1], 300, enemy_bullets,
                                             camera_group)
             if not game_over:
-                if player_movement_registered:
+                if player_movement_registered or first_update:
                     camera_group.update(dt)
+                    first_update = False
                 particle_group.update(dt)
                 camera_group.custom_draw(screen, map.get_layers(), player)
                 for enemy in enemies:
