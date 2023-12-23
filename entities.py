@@ -29,11 +29,11 @@ class PhysicsObj(object):
             markers = [False, False, False, False]
             if not collision_types["top"] and not collision_types["bottom"] and not collision_types["left"] and not \
                     collision_types["right"]:
-                if abs(block.left - self.rect.right) < tolerance and movement[0] > 0:
+                if abs(block.left - self.rect.right) < tolerance and movement[0] >= 0:
                     self.rect.right = block.left
                     collision_types['right'] = True
                     markers[0] = True
-                elif abs(block.right - self.rect.left) < tolerance and movement[0] < 0:
+                elif abs(block.right - self.rect.left) < tolerance and movement[0] <= 0:
                     self.rect.left = block.right
                     collision_types['left'] = True
                     markers[1] = True
@@ -46,11 +46,11 @@ class PhysicsObj(object):
             markers = [False, False, False, False]
             if not collision_types["top"] and not collision_types["bottom"] and not collision_types["left"] and not \
                     collision_types["right"]:
-                if abs(block.top - self.rect.bottom) < tolerance and movement[1] > 0:
+                if abs(block.top - self.rect.bottom) < tolerance and movement[1] >= 0:
                     self.rect.bottom = block.top
                     collision_types['bottom'] = True
                     markers[2] = True
-                elif abs(block.bottom - self.rect.top) < tolerance and movement[1] < 0:
+                elif abs(block.bottom - self.rect.top) < tolerance and movement[1] <= 0:
                     self.rect.top = block.bottom
                     collision_types['top'] = True
                     markers[3] = True
