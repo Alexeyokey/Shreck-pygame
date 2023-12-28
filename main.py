@@ -6,10 +6,12 @@ from entities import PhysicsObj, Entity
 from particles import create_particles
 from scripts import get_angle_between, load_image
 from sprite_tools import Sprite, Animation
-from levels import first_level, second_level, third_level
+from levels import first_level, second_level
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
+import pygame_gui
+
 
 pygame.init()
 
@@ -17,39 +19,332 @@ info = pygame.display.Info()
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'theme_for_button.json')
+pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
+# pygame.mixer.music.play()
+vol = 0
+sensitivity = 0.00001
+sensitivity_multiplier = 1
 
 
 def start():
+    global manager, sensitivity
+    manager.clear_and_reset()
+    manager.get_theme().load_theme('theme_for_button.json')
+
+    welcome = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((240, 190), (800, 100)),
+        text="Welcome to Shreck",
+        manager=manager,
+        object_id="#label"
+    )
+
+    start_btn = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, 340), (400, 100)),
+        text='START',
+        manager=manager,
+        object_id="#button"
+    )
+
+    settings_btn = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, 490), (400, 100)),
+        text='SETTINGS',
+        manager=manager,
+        object_id="#button"
+    )
+
+    rating_btn = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, 640), (400, 100)),
+        text='Rating',
+        manager=manager,
+        object_id="#button"
+    )
+
+    clock = pygame.time.Clock()
     menu = True
     while menu:
-        screen.fill((75, 122, 71))
+        time_delta = clock.tick(60) / 1000.0
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     menu = False
             elif event.type == QUIT:
                 menu = False
-        main_font = pygame.font.Font(None, 72)
-        welcome = pygame.font.Font(None, 144).render('Welcome to Shrek', 1, (255, 255, 255))
-        retry = (main_font.render('START', 1, (255, 255, 255)), (200, 100), "start")
-        back_to_menu = (main_font.render('SETTINGS', 1, (255, 255, 255)), (400, 100), "settings")
-        buttons = {}
-        for index, i in enumerate([retry, back_to_menu]):
-            button = Button()
-            button_size = (400, 100)
-            button.create_button(screen, (255, 255, 255), SCREEN_WIDTH // 2 - button_size[0] // 2,
-                                 SCREEN_HEIGHT // 2 + index * 150, button_size, i[0], 1)
-            button.draw_button()
-            buttons[i[2]] = button
-        screen.blit(welcome, (
-            SCREEN_WIDTH // 2 - welcome.get_width() // 2, SCREEN_HEIGHT // 2 - welcome.get_height() // 2 - 100))
-        if buttons['start'].pressed(pygame.mouse.get_pos()):
-            menu = False
-            main()
-        elif buttons['settings'].pressed(pygame.mouse.get_pos()):
-            pass
+            if event.type == pygame.MOUSEMOTION:
+                axis_values = event.rel
+                axis_values = [value * sensitivity for value in axis_values]
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == start_btn:
+                        menu = False
+                        main()
+                    elif event.ui_element == settings_btn:
+                        menu = False
+                        settings()
+                    elif event.ui_element == rating_btn:
+                        menu = False
+                        rating()
+            manager.process_events(event)
+        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+        screen.blit(background_image, [0, 0])
+        manager.draw_ui(screen)
+        manager.update(time_delta)
         pygame.display.flip()
+        pygame.display.update()
 
+
+def settings():
+    global manager, vol, sensitivity, sensitivity_multiplier
+    manager.clear_and_reset()
+    manager.get_theme().load_theme('theme_for_button.json')
+
+    setting_lbl = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((240, 100), (800, 100)),
+        text="Settings",
+        manager=manager,
+        object_id="#label"
+    )
+
+    sound_lbl = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((240, 190), (800, 100)),
+        text="Sound",
+        manager=manager,
+        object_id="#little_label"
+    )
+
+    sub_volume = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((130+345, 290), (100, 100)),
+        text='-',
+        manager=manager,
+        object_id="#button"
+    )
+
+    mute_volume = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((240+345, 290), (100, 100)),
+        text='OFF',
+        manager=manager,
+        object_id="#button"
+    )
+
+    add_volume = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((350+345, 290), (100, 100)),
+        text='+',
+        manager=manager,
+        object_id="#button"
+    )
+
+    sensitivity_lbl = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((240, 390), (800, 100)),
+        text="Sensitivity",
+        manager=manager,
+        object_id="#little_label"
+    )
+
+    add_sensitivity = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((650, 490), (100, 100)),
+        text='+',
+        manager=manager,
+        object_id="#button"
+    )
+
+    sub_sensitivity = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((600, 490), (100, 100)),
+        text='-',
+        manager=manager,
+        object_id="#button"
+    )
+
+    clock = pygame.time.Clock()
+    setting = True
+    while setting:
+        time_delta = clock.tick(60) / 1000.0
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    setting = False
+                    start()
+            elif event.type == QUIT:
+                setting = False
+            if event.type == pygame.MOUSEMOTION:
+                axis_values = event.rel
+                axis_values = [value * sensitivity for value in axis_values]
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == sub_volume:
+                        pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() - 0.1)
+                        vol = pygame.mixer.music.get_volume()
+                    elif event.ui_element == mute_volume:
+                        if pygame.mixer.music.get_volume() != 0:
+                            pygame.mixer.music.set_volume(0)
+                        else:
+                            pygame.mixer.music.set_volume(vol)
+                    elif event.ui_element == add_volume:
+                        pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() + 0.1)
+                        vol = pygame.mixer.music.get_volume()
+                    elif event.ui_element == add_sensitivity:
+                        if sensitivity + 1 <= 10:
+                            sensitivity += 1
+                    elif event.ui_element == sub_sensitivity:
+                        if sensitivity - 1 <= 0:
+                            sensitivity -= 1
+            manager.process_events(event)
+        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+        screen.blit(background_image, [0, 0])
+        manager.draw_ui(screen)
+        manager.update(time_delta)
+        pygame.display.flip()
+        pygame.display.update()
+
+def end(score):
+    global manager
+    manager.clear_and_reset()
+    manager.get_theme().load_theme('theme_for_button.json')
+
+    info = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((240, 190), (800, 100)),
+        text=f"Total score: {score}",
+        manager=manager,
+        object_id="#label"
+    )
+
+    retry = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, 340), (400, 100)),
+        text='RETRY',
+        manager=manager,
+        object_id="#button"
+    )
+
+    back_to_menu = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, 490), (400, 100)),
+        text='BACK TO MENU',
+        manager=manager,
+        object_id="#button"
+    )
+
+    clock = pygame.time.Clock()
+    finish = True
+    while finish:
+        time_delta = clock.tick(60) / 1000.0
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    finish = False
+                    start()
+            elif event.type == QUIT:
+                finish = False
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == retry:
+                        finish = False
+                        main()
+                    elif event.ui_element == back_to_menu:
+                        finish = False
+                        start()
+            manager.process_events(event)
+        pygame.blit(background_image, [0, 0])
+        manager.draw_ui(screen)
+        manager.update(time_delta)
+        pygame.display.flip()
+        pygame.display.update()
+
+def rating():
+    global manager
+    manager.clear_and_reset()
+    manager.get_theme().load_theme('theme_for_button.json')
+    background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+
+    welcome = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((240, 190), (800, 100)),
+        text="Rating",
+        manager=manager,
+        object_id="#label"
+    )
+
+    bg_panel = pygame_gui.elements.UIPanel(
+        relative_rect=pygame.Rect((200, 490), (880, 30)),
+        manager=manager,
+        object_id="#bg_panel"
+    )
+
+    real = pygame_gui.elements.UIPanel(
+        relative_rect=pygame.Rect((200, 490), (int(open('score.txt', 'r').readlines()[0]) / 30_000 * 880, 30)),
+        manager=manager,
+        object_id="#real"
+    )
+
+    img = pygame.image.load('rating_photo/bronze.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((250, 350), (100, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/silver.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((400, 450), (100, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/gold.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((400, 450), (100, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/platinum.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((500, 450), (100, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/diamond.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((600, 450), (100, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/champion.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((700, 450), (100, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/grand_champion.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((800, 250), (135, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    img = pygame.image.load('rating_photo/ssl.png')
+    bronze = pygame_gui.elements.UIImage(
+        relative_rect=pygame.Rect((900, 450), (150, 100)),
+        image_surface=img,
+        manager=manager
+    )
+
+    clock = pygame.time.Clock()
+    rat = True
+    while rat:
+        time_delta = clock.tick(60) / 1000.0
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    rat = False
+                    start()
+            elif event.type == QUIT:
+                rat = False
+        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+        screen.blit(background_image, [0, 0])
+        manager.draw_ui(screen)
+        manager.update(time_delta)
+        pygame.display.flip()
+        pygame.display.update()
 
 def main():
     class Enemy(Entity):
@@ -71,29 +366,16 @@ def main():
                                             scale=2.5)
             run_left = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
                                            scale=2.5)
-            damage_right = Animation.from_path('sprites/knight_damage.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
-                                           scale=2.5)
-            damage_left = Animation.from_path('sprites/knight_damage.png', (4, 1), 4, reverse_x=True,
-                                              colorkey=(0, 0, 0),
-                                              scale=2.5)
-            self.sprite.add_animation({"wait_r": wait_right, "wait_l": wait_left,
-                                       "run_r": run_right, "run_l": run_left}, loop=True)
-            self.sprite.add_animation({"damage_r": damage_right, "damage_l": damage_left}, loop=False)
-            self.sprite.add_callback('damage_r', self.change_state)
-            self.sprite.add_callback('damage_r', self.check_death_and_kill)
-            self.sprite.add_callback('damage_l', self.change_state)
-            self.sprite.add_callback('damage_l', self.check_death_and_kill)
+            self.sprite.add_animation({"wait_right": wait_right, "wait_left": wait_left,
+                                       "run_right": run_right, "run_left": run_left}, loop=True)
             left_or_right = random.randint(0, 1)
-            self.cur_state = 'wait'
-            self.direction = 'l' if left_or_right else 'r'
-            self.sprite.start_animation("wait_l" if left_or_right else "wait_r", restart_if_active=True)
+            self.sprite.start_animation("wait_left" if left_or_right else "wait_right", restart_if_active=True)
 
         def update(self, dt):
             x, y = self.rect.center
             x_player, y_player = player.rect.center
             self.sprite.update(dt)
-            dif_x, dif_y = 0, 0
-            if self.bow and abs(x_player - x) <= 200 and abs(y_player - y) <= 200 or self.sword or self.death_flag:
+            if abs(x_player - x) <= 400 and abs(y_player - y) <= 400:
                 speed = self.cur_speed
                 dif_x = x_player - x
                 dif_y = y_player - y
@@ -105,20 +387,14 @@ def main():
                     dif_y = speed if dif_y > 0 else -speed
                 else:
                     dif_y = dif_y * dt
+                if dif_x > 0:
+                    self.sprite.start_animation("run_right", restart_if_active=False)
+                elif dif_x <= 0:
+                    self.sprite.start_animation("run_left", restart_if_active=False)
                 dif_x, dif_y = dif_x * dt, dif_y * dt
-                if self.bow or self.death_flag:
-                    dif_x, dif_y = -dif_x, -dif_y
                 self.move((dif_x, dif_y), self.groups_to_collide, 10)
-            self.animation(dif_x, dif_y)
-
-        def animation(self, dif_x, dif_y):
-            if dif_x or dif_y:
-                self.state = 'run'
-            if self.get_rect().centerx <= player.get_rect().centerx:
-                self.direction = 'r'
-            elif self.get_rect().centerx > player.get_rect().centerx:
-                self.direction = 'l'
-            self.sprite.start_animation(self.cur_state + '_' + self.direction, restart_if_active=False)
+            # if self.death_flag and pygame.time.get_ticks() - self.kill_start >= self.kill_timer:
+            #     self.kill()
 
         def move(self, movement, objects, tolerance=5):
             collisions = self.physic_obg.move(movement, objects, tolerance)
@@ -127,28 +403,9 @@ def main():
             return collisions
 
         # def delay_kill(self, time):
-        #
+        #     self.kill_start = pygame.time.get_ticks()
+        #     self.kill_timer = time * 1000
         #     self.death_flag = True
-        def get_hit(self, angle, damage):
-            self.hp -= damage
-            self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.groups_to_collide)
-            self.cur_state = 'damage'
-
-        def change_state(self, state='run'):
-            self.cur_state = state
-
-        def check_death_and_kill(self):
-            if self.death_flag:
-                self.kill()
-
-        def death(self):
-            if enemy.sword:
-                enemy.sword.kill()
-                enemy.sword = None
-            if enemy.bow:
-                enemy.bow.kill()
-                enemy.bow = None
-            self.death_flag = True
 
         def get_draw_rect(self):
             return pygame.Rect(self.rect.x - 20, self.rect.y - 30, self.rect.w, self.rect.h)
@@ -243,11 +500,12 @@ def main():
                     self.sprite.start_animation('wait_l', restart_if_active=False)
 
         def move(self, movement, objects):
-            collisions = self.physic_obg.move(movement, objects, 10)
+            collisions = self.physic_obg.move(movement, objects)
             self.rect.x = self.physic_obg.x
             self.rect.y = self.physic_obg.y
+
             if pygame.sprite.spritecollideany(self, enemies):
-                self.set_cur_speed(self.speed // 2)
+                self.set_cur_speed(self.speed // 4)
             else:
                 self.set_cur_speed(self.speed)
 
@@ -309,7 +567,7 @@ def main():
                 coords = pygame.Vector2(self.entity.rect.center)
                 coords[0] += math.cos(self.angle) * 60
                 coords[1] += math.sin(self.angle) * 50
-                Bullet(0, 100, "sword_attack", coords, self.angle, 0.02, pygame.Surface(self.damage_area), self.attacking_group, self.group)
+                Bullet(0, 100, "sword_attack", coords, 0, 0.02, pygame.Surface(self.damage_area), self.attacking_group, self.group)
 
         def update(self, dt):
             if not self.target:
@@ -436,15 +694,13 @@ def main():
             self.type = type
             self.time_disappear = pygame.time.get_ticks() + time_disappear * 1000
             self.surf = image
-            if type != 'sword_attack':
-                self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
+            self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
             if not self.surf.get_colorkey():
                 self.surf.set_colorkey((0, 0, 0))
             self.rect = self.surf.get_rect()
             self.rect.center = coords
             self.speed = speed
             self.damage = damage
-
         def update(self, dt):
             self.x += math.cos(self.angle) * self.speed * dt
             self.y += math.sin(self.angle) * self.speed * dt
@@ -483,7 +739,7 @@ def main():
     game_over = None
     tmx_data = load_pygame('map/map.tmx')
     map = Map(tmx_data)
-    levels = iter([first_level(), second_level(), third_level()])
+    levels = iter([first_level(), second_level()])
     screen_messages = []
     score = 0
     cur_level_counter = 0
@@ -491,7 +747,8 @@ def main():
     player_movement_registered = False
     first_update = True
     while running:
-        clock.tick(60)
+        dt = clock.tick(60) / 1000
+        print(pygame.time.get_ticks() - previous_time)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
         previous_time = pygame.time.get_ticks()
         screen.fill((75, 122, 71))
@@ -567,11 +824,17 @@ def main():
                     if enemy.bow:
                         enemy.bow.bow_tense()
                     if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
-                        enemy.get_hit(collided_sprite.angle, collided_sprite.damage)
+                        enemy.hp -= collided_sprite.damage
                         collided_sprite.collide_action()
                     if enemy.hp <= 0 and not enemy.death_flag:
-                       enemy.death()
-                       score += 100
+                        if enemy.sword:
+                            enemy.sword.kill()
+                            enemy.sword = None
+                        if enemy.bow:
+                            enemy.bow.kill()
+                            enemy.bow = None
+                        enemy.kill()
+                        score += 100
                 if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
                     player.hp -= bullet.damage
                     bullet.kill()
@@ -589,29 +852,10 @@ def main():
                             screen_messages.remove(message_box)
                             break
         else:
-            main_font = pygame.font.Font(None, 72)
-            title = pygame.font.Font(None, 144).render(str(game_over), 1, (255, 255, 255))
-            total_score = main_font.render(f'Total score:{score}', 1, (255, 255, 255))
-            retry = (main_font.render('Retry', 1, (255, 255, 255)), (200, 100), "retry")
-            back_to_menu = (main_font.render('Back to menu', 1, (255, 255, 255)), (400, 100), "back")
-            buttons = {}
-            for index, i in enumerate([retry, back_to_menu]):
-                button = Button()
-                button_size = (400, 100)
-                button.create_button(screen, (255, 255, 255), SCREEN_WIDTH // 2 - button_size[0] // 2,
-                                     SCREEN_HEIGHT // 2 + index * 150, button_size, i[0], 1)
-                button.draw_button()
-                buttons[i[2]] = button
-            screen.blit(title, (
-                SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 2 - title.get_height() // 2 - 200))
-            screen.blit(total_score, (
-                SCREEN_WIDTH // 2 - total_score.get_width() // 2 , SCREEN_HEIGHT // 2 + total_score.get_height() // 2 - 100))
-            if buttons['retry'].pressed(pygame.mouse.get_pos()):
-                running = False
-                main()
-            elif buttons['back'].pressed(pygame.mouse.get_pos()):
-                running = False
-                start()
+            running = False
+            sum_score = int(open('score.txt', 'r').readline()) + score
+            open('score.txt', 'w').write(str(sum_score))
+            end(score)
         pygame.display.flip()
 
 

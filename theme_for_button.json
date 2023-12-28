@@ -1,0 +1,100 @@
+{
+    "#button": {
+        "colours": {
+            "normal_bg": "rgba(255, 255, 255, 15)",
+            "hovered_bg": "rgba(255, 255, 255, 75)",
+            "active_bg": "rgba(255, 255, 255, 75)",
+            "disabled_text": "rgb(255, 255, 255)",
+            "hovered_text": "rgb(255, 255, 255)",
+            "normal_text": "rgb(255, 255, 255)",
+            "selected_text": "rgb(255, 255, 255)",
+            "active_text": "rgb(255, 255, 255)",
+            "normal_border": "rgba(255, 255, 255, 75)",
+            "hovered_border": "rgba(255, 255, 255, 130)",
+            "disabled_border": "rgba(255, 255, 255, 130)",
+            "selected_border": "rgba(255, 255, 255, 130)",
+            "active_border": "rgba(255, 255, 255, 75)"
+        },
+        "font":
+        {
+            "size": "30"
+        }
+    },
+    "#label":
+    {
+        "colours":
+        {
+            "normal_text": "rgb(255, 255, 255)"
+        },
+        "font":
+        {
+            "name": "montserrat",
+            "size": "70",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "Montserrat-Regular.ttf"
+            }
+        }
+    },
+    "#little_label":
+    {
+        "colours":
+        {
+            "normal_text": "rgb(255, 255, 255)"
+        },
+        "font":
+        {
+            "name": "montserrat",
+            "size": "50",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "Montserrat-Regular.ttf"
+            }
+        }
+    },
+    "#progressbar":
+    {
+        "colours":
+         {
+             "normal_text": "#c5cbd8",
+             "normal_border": "#DDDDDD",
+             "unfilled_bar": "#CCCCCC",
+             "filled_bar": "rgb(0, 0, 0)"
+         },
+        "misc":
+        {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "14",
+            "border_width": "0",
+            "shadow_width": "0"
+        }
+    },
+    "#bg_panel":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(255, 255, 255, 15)"
+        },
+        "misc":
+        {
+            "border_width": 0,
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "18"
+        }
+    },
+    "#real":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(100, 100, 255)"
+        },
+        "misc":
+        {
+            "border_width": 0,
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "18"
+        }
+    }
+}
