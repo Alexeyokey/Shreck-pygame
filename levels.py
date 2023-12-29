@@ -37,8 +37,7 @@ def third_level():
     enemy_respawn = 100
     shot_delay = 2.5
     enemies = []
-    enemies.append((speed, hp, (start_pos[0] + 100, start_pos[1] + 300), enemy_shape, "bow", shot_delay))
-    enemies.append((speed, hp, (start_pos[0] + 300, start_pos[1] + 300), enemy_shape, "bow", shot_delay))
-    enemies.append((speed, hp, (start_pos[0] + 800, start_pos[1] + 300), enemy_shape, "bow", shot_delay))
-    enemies.append((speed, hp, (start_pos[0] + 500, start_pos[1] + 300), enemy_shape, "bow", shot_delay))
+    enemies.append((speed, hp, (start_pos[0] + 500, start_pos[1]), enemy_shape, "sword", shot_delay))
+    enemies.append((speed, hp, (start_pos[0] + 800, start_pos[1]), enemy_shape, "sword", shot_delay))
+    enemies.append((speed, hp, (start_pos[0] + 650, start_pos[1] + 300), enemy_shape, "bow", shot_delay))
     return enemies, enemy_respawn, player_pos

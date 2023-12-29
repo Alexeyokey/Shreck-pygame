@@ -96,5 +96,12 @@
             "shape": "rounded_rectangle",
             "shape_corner_radius": "18"
         }
+    },
+    "#effect_color":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(74, 58, 45, 50)"
+        }
     }
 }

@@ -6,12 +6,11 @@ from entities import PhysicsObj, Entity
 from particles import create_particles
 from scripts import get_angle_between, load_image
 from sprite_tools import Sprite, Animation
-from levels import first_level, second_level
+from levels import first_level, second_level, third_level
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
 import pygame_gui
-
 
 pygame.init()
 
@@ -21,7 +20,7 @@ SCREEN_HEIGHT = 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'theme_for_button.json')
 pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
-# pygame.mixer.music.play()
+pygame.mixer.music.play()
 vol = 0
 sensitivity = 0.00001
 sensitivity_multiplier = 1
@@ -241,7 +240,8 @@ def end(score):
                         finish = False
                         start()
             manager.process_events(event)
-        pygame.blit(background_image, [0, 0])
+        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+        screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
         pygame.display.flip()
@@ -254,78 +254,85 @@ def rating():
     background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
 
     welcome = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240, 190), (800, 100)),
+        relative_rect=pygame.Rect((240, 190), (880, 100)),
         text="Rating",
         manager=manager,
         object_id="#label"
     )
 
     bg_panel = pygame_gui.elements.UIPanel(
-        relative_rect=pygame.Rect((200, 490), (880, 30)),
+        relative_rect=pygame.Rect((190, 490), (900, 30)),
         manager=manager,
         object_id="#bg_panel"
     )
 
     real = pygame_gui.elements.UIPanel(
-        relative_rect=pygame.Rect((200, 490), (int(open('score.txt', 'r').readlines()[0]) / 30_000 * 880, 30)),
+        relative_rect=pygame.Rect((190, 490), (int(open('score.txt', 'r').readlines()[0]) / 30_000 * 900, 30)),
         manager=manager,
         object_id="#real"
     )
 
     img = pygame.image.load('rating_photo/bronze.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((250, 350), (100, 100)),
+        relative_rect=pygame.Rect((300, 350), (100, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/silver.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((400, 450), (100, 100)),
+        relative_rect=pygame.Rect((400, 550), (110, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/gold.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((400, 450), (100, 100)),
+        relative_rect=pygame.Rect((500, 350), (105, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/platinum.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((500, 450), (100, 100)),
+        relative_rect=pygame.Rect((600, 550), (100, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/diamond.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((600, 450), (100, 100)),
+        relative_rect=pygame.Rect((700, 350), (100, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/champion.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((700, 450), (100, 100)),
+        relative_rect=pygame.Rect((800, 550), (120, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/grand_champion.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((800, 250), (135, 100)),
+        relative_rect=pygame.Rect((900, 350), (135, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/ssl.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((900, 450), (150, 100)),
+        relative_rect=pygame.Rect((1000, 550), (150, 100)),
         image_surface=img,
         manager=manager
+    )
+
+    effect_color = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((0, 0), (1280, 720)),
+        text='',
+        manager=manager,
+        object_id="#effect_color"
     )
 
     clock = pygame.time.Clock()
@@ -345,6 +352,8 @@ def rating():
         manager.update(time_delta)
         pygame.display.flip()
         pygame.display.update()
+
+
 
 def main():
     class Enemy(Entity):
@@ -366,16 +375,29 @@ def main():
                                             scale=2.5)
             run_left = Animation.from_path('sprites/knight_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
                                            scale=2.5)
-            self.sprite.add_animation({"wait_right": wait_right, "wait_left": wait_left,
-                                       "run_right": run_right, "run_left": run_left}, loop=True)
+            damage_right = Animation.from_path('sprites/knight_damage.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+                                           scale=2.5)
+            damage_left = Animation.from_path('sprites/knight_damage.png', (4, 1), 4, reverse_x=True,
+                                              colorkey=(0, 0, 0),
+                                              scale=2.5)
+            self.sprite.add_animation({"wait_r": wait_right, "wait_l": wait_left,
+                                       "run_r": run_right, "run_l": run_left}, loop=True)
+            self.sprite.add_animation({"damage_r": damage_right, "damage_l": damage_left}, loop=False)
+            self.sprite.add_callback('damage_r', self.change_state)
+            self.sprite.add_callback('damage_r', self.check_death_and_kill)
+            self.sprite.add_callback('damage_l', self.change_state)
+            self.sprite.add_callback('damage_l', self.check_death_and_kill)
             left_or_right = random.randint(0, 1)
-            self.sprite.start_animation("wait_left" if left_or_right else "wait_right", restart_if_active=True)
+            self.cur_state = 'wait'
+            self.direction = 'l' if left_or_right else 'r'
+            self.sprite.start_animation("wait_l" if left_or_right else "wait_r", restart_if_active=True)
 
         def update(self, dt):
             x, y = self.rect.center
             x_player, y_player = player.rect.center
             self.sprite.update(dt)
-            if abs(x_player - x) <= 400 and abs(y_player - y) <= 400:
+            dif_x, dif_y = 0, 0
+            if self.bow and abs(x_player - x) <= 200 and abs(y_player - y) <= 200 or self.sword or self.death_flag:
                 speed = self.cur_speed
                 dif_x = x_player - x
                 dif_y = y_player - y
@@ -387,14 +409,20 @@ def main():
                     dif_y = speed if dif_y > 0 else -speed
                 else:
                     dif_y = dif_y * dt
-                if dif_x > 0:
-                    self.sprite.start_animation("run_right", restart_if_active=False)
-                elif dif_x <= 0:
-                    self.sprite.start_animation("run_left", restart_if_active=False)
                 dif_x, dif_y = dif_x * dt, dif_y * dt
+                if self.bow or self.death_flag:
+                    dif_x, dif_y = -dif_x, -dif_y
                 self.move((dif_x, dif_y), self.groups_to_collide, 10)
-            # if self.death_flag and pygame.time.get_ticks() - self.kill_start >= self.kill_timer:
-            #     self.kill()
+            self.animation(dif_x, dif_y)
+
+        def animation(self, dif_x, dif_y):
+            if dif_x or dif_y:
+                self.state = 'run'
+            if self.get_rect().centerx <= player.get_rect().centerx:
+                self.direction = 'r'
+            elif self.get_rect().centerx > player.get_rect().centerx:
+                self.direction = 'l'
+            self.sprite.start_animation(self.cur_state + '_' + self.direction, restart_if_active=False)
 
         def move(self, movement, objects, tolerance=5):
             collisions = self.physic_obg.move(movement, objects, tolerance)
@@ -403,9 +431,28 @@ def main():
             return collisions
 
         # def delay_kill(self, time):
-        #     self.kill_start = pygame.time.get_ticks()
-        #     self.kill_timer = time * 1000
+        #
         #     self.death_flag = True
+        def get_hit(self, angle, damage):
+            self.hp -= damage
+            self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.groups_to_collide)
+            self.cur_state = 'damage'
+
+        def change_state(self, state='run'):
+            self.cur_state = state
+
+        def check_death_and_kill(self):
+            if self.death_flag:
+                self.kill()
+
+        def death(self):
+            if enemy.sword:
+                enemy.sword.kill()
+                enemy.sword = None
+            if enemy.bow:
+                enemy.bow.kill()
+                enemy.bow = None
+            self.death_flag = True
 
         def get_draw_rect(self):
             return pygame.Rect(self.rect.x - 20, self.rect.y - 30, self.rect.w, self.rect.h)
@@ -500,12 +547,11 @@ def main():
                     self.sprite.start_animation('wait_l', restart_if_active=False)
 
         def move(self, movement, objects):
-            collisions = self.physic_obg.move(movement, objects)
+            collisions = self.physic_obg.move(movement, objects, 10)
             self.rect.x = self.physic_obg.x
             self.rect.y = self.physic_obg.y
-
             if pygame.sprite.spritecollideany(self, enemies):
-                self.set_cur_speed(self.speed // 4)
+                self.set_cur_speed(self.speed // 2)
             else:
                 self.set_cur_speed(self.speed)
 
@@ -567,7 +613,7 @@ def main():
                 coords = pygame.Vector2(self.entity.rect.center)
                 coords[0] += math.cos(self.angle) * 60
                 coords[1] += math.sin(self.angle) * 50
-                Bullet(0, 100, "sword_attack", coords, 0, 0.02, pygame.Surface(self.damage_area), self.attacking_group, self.group)
+                Bullet(0, 100, "sword_attack", coords, self.angle, 0.02, pygame.Surface(self.damage_area), self.attacking_group, self.group)
 
         def update(self, dt):
             if not self.target:
@@ -694,13 +740,15 @@ def main():
             self.type = type
             self.time_disappear = pygame.time.get_ticks() + time_disappear * 1000
             self.surf = image
-            self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
+            if type != 'sword_attack':
+                self.surf = pygame.transform.rotate(self.surf, -math.degrees(angle))
             if not self.surf.get_colorkey():
                 self.surf.set_colorkey((0, 0, 0))
             self.rect = self.surf.get_rect()
             self.rect.center = coords
             self.speed = speed
             self.damage = damage
+
         def update(self, dt):
             self.x += math.cos(self.angle) * self.speed * dt
             self.y += math.sin(self.angle) * self.speed * dt
@@ -739,7 +787,7 @@ def main():
     game_over = None
     tmx_data = load_pygame('map/map.tmx')
     map = Map(tmx_data)
-    levels = iter([first_level(), second_level()])
+    levels = iter([first_level(), second_level(), third_level()])
     screen_messages = []
     score = 0
     cur_level_counter = 0
@@ -747,8 +795,7 @@ def main():
     player_movement_registered = False
     first_update = True
     while running:
-        dt = clock.tick(60) / 1000
-        print(pygame.time.get_ticks() - previous_time)
+        clock.tick(60)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
         previous_time = pygame.time.get_ticks()
         screen.fill((75, 122, 71))
@@ -824,17 +871,11 @@ def main():
                     if enemy.bow:
                         enemy.bow.bow_tense()
                     if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
-                        enemy.hp -= collided_sprite.damage
+                        enemy.get_hit(collided_sprite.angle, collided_sprite.damage)
                         collided_sprite.collide_action()
                     if enemy.hp <= 0 and not enemy.death_flag:
-                        if enemy.sword:
-                            enemy.sword.kill()
-                            enemy.sword = None
-                        if enemy.bow:
-                            enemy.bow.kill()
-                            enemy.bow = None
-                        enemy.kill()
-                        score += 100
+                       enemy.death()
+                       score += 100
                 if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
                     player.hp -= bullet.damage
                     bullet.kill()
