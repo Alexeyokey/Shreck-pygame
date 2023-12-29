@@ -97,11 +97,67 @@
             "shape_corner_radius": "18"
         }
     },
-    "#effect_color":
+    "#1":
     {
         "colours":
         {
             "dark_bg": "rgba(74, 58, 45, 50)"
+        }
+    },
+    "#2":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(82, 73, 78, 50)"
+        }
+    },
+    "#3":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(98, 87, 85, 50)"
+        }
+    },
+    "#4":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(93, 83, 99, 50)"
+        }
+    },
+    "#5":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(87, 85, 106, 50)"
+        }
+    },
+    "#6":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(100, 78, 101, 50)"
+        }
+    },
+    "#7":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(111, 75, 103, 50)"
+        }
+    },
+    "#8":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(115, 69, 115, 50)"
+        }
+    },
+    "#0":
+    {
+        "colours":
+        {
+            "dark_bg": "rgba(255, 255, 255, 0)"
         }
     }
 }

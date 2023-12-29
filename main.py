@@ -267,63 +267,63 @@ def rating():
     )
 
     real = pygame_gui.elements.UIPanel(
-        relative_rect=pygame.Rect((190, 490), (int(open('score.txt', 'r').readlines()[0]) / 30_000 * 900, 30)),
+        relative_rect=pygame.Rect((190, 490), (int(open('score.txt', 'r').readlines()[0]) * 112.5, 30)),
         manager=manager,
         object_id="#real"
     )
 
     img = pygame.image.load('rating_photo/bronze.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((300, 350), (100, 100)),
+        relative_rect=pygame.Rect((290-50, 350), (100, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/silver.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((400, 550), (110, 100)),
+        relative_rect=pygame.Rect((390-(55/2), 550), (110, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/gold.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((500, 350), (105, 100)),
+        relative_rect=pygame.Rect((490-(52.5/2), 350), (105, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/platinum.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((600, 550), (100, 100)),
+        relative_rect=pygame.Rect((590, 550), (100, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/diamond.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((700, 350), (100, 100)),
+        relative_rect=pygame.Rect((690, 350), (100, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/champion.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((800, 550), (120, 100)),
+        relative_rect=pygame.Rect((790+10, 550), (120, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/grand_champion.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((900, 350), (135, 100)),
+        relative_rect=pygame.Rect((890+10, 350), (135, 100)),
         image_surface=img,
         manager=manager
     )
 
     img = pygame.image.load('rating_photo/ssl.png')
     bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((1000, 550), (150, 100)),
+        relative_rect=pygame.Rect((990, 550), (150, 100)),
         image_surface=img,
         manager=manager
     )
@@ -332,7 +332,7 @@ def rating():
         relative_rect=pygame.Rect((0, 0), (1280, 720)),
         text='',
         manager=manager,
-        object_id="#effect_color"
+        object_id=("#" + open('score.txt', 'r').readline())
     )
 
     clock = pygame.time.Clock()
@@ -775,6 +775,7 @@ def main():
             return self.surf
 
     running = True
+    count_of_score = 0
     enemies = pygame.sprite.Group()
     particle_group = CameraGroup()
     camera_group = CameraGroup()
@@ -833,6 +834,9 @@ def main():
         if not game_over:
             if not enemies:
                 cur_level_counter += 1
+                count_of_score += 1
+                score_for_file = max(int(open('score.txt', 'r').readlines()[0]), count_of_score)
+                open('score.txt', 'w').write(str(score_for_file - 1))
                 wave = pygame.font.Font(None, 144).render(f'wave {cur_level_counter}', 1, (255, 255, 255))
                 wave_2 = pygame.font.Font(None, 150).render(f'wave {cur_level_counter}', 1, (0, 0, 0))
                 pos = screen.get_size()[0] // 2 - wave.get_width() // 2, screen.get_size()[1] // 2 - wave.get_height() * 2.5
@@ -894,8 +898,6 @@ def main():
                             break
         else:
             running = False
-            sum_score = int(open('score.txt', 'r').readline()) + score
-            open('score.txt', 'w').write(str(sum_score))
             end(score)
         pygame.display.flip()
 
