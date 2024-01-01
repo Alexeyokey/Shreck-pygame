@@ -30,6 +30,18 @@ def load_image(name, colorkey=None, scale=None, flip=None):
         image = pygame.transform.flip(image, *flip)
     return image
 
+
 def get_angle_between(coords1, coords2):
     dif_x, dif_y = coords1[0] - coords2[0], coords1[1] - coords2[1]
     return math.atan2(dif_y, dif_x)
+
+
+def magnitude(coords):
+    x, y = coords
+    distance = math.sqrt(x * x + y * y)
+    return distance
+
+def scale_to(vector, magnitude, my_magnitude):
+    vector[0] *= magnitude / my_magnitude
+    vector[1] *= magnitude / my_magnitude
+    return vector

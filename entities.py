@@ -5,7 +5,7 @@ def collision_test(object_1, object_list, old_rect):
     collision_list = []
     for obj in object_list:
         if obj.get_rect().colliderect(object_1) and obj.get_rect() != old_rect:
-            collision_list.append(obj.get_rect())
+            collision_list.append(obj.physic_obj)
     return collision_list
 
 
@@ -18,7 +18,8 @@ class PhysicsObj(object):
         self.y = y
         self.old_rect = self.rect.copy()
 
-    def move(self, movement, objects, tolerance=5):
+    def move(self, movement, objects):
+        self.old_rect = self.rect.copy()
         self.x += int(movement[0])
         self.rect.x = self.x
         block_hit_list = collision_test(self.rect, objects, self.old_rect)
@@ -29,16 +30,20 @@ class PhysicsObj(object):
             markers = [False, False, False, False]
             if not collision_types["top"] and not collision_types["bottom"] and not collision_types["left"] and not \
                     collision_types["right"]:
-                if abs(block.left - self.rect.right) < tolerance and movement[0] >= 0:
-                    self.rect.right = block.left
+                # collision on the right
+                if self.rect.right >= block.rect.left and self.old_rect.right <= block.old_rect.left:
+                    self.rect.right = block.rect.left
+                    self.x = self.rect.x
                     collision_types['right'] = True
                     markers[0] = True
-                elif abs(block.right - self.rect.left) < tolerance and movement[0] <= 0:
-                    self.rect.left = block.right
+
+                # collision on the left
+                if self.rect.left <= block.rect.right and self.old_rect.left >= block.old_rect.right:
+                    self.rect.left = block.rect.right
+                    self.x = self.rect.x
                     collision_types['left'] = True
                     markers[1] = True
-                self.x = self.rect.x
-                collision_types['data'].append([block, markers])
+                collision_types['data'].append([block.rect, markers])
         self.y += int(movement[1])
         self.rect.y = self.y
         block_hit_list = collision_test(self.rect, objects, self.old_rect)
@@ -46,17 +51,18 @@ class PhysicsObj(object):
             markers = [False, False, False, False]
             if not collision_types["top"] and not collision_types["bottom"] and not collision_types["left"] and not \
                     collision_types["right"]:
-                if abs(block.top - self.rect.bottom) < tolerance and movement[1] >= 0:
-                    self.rect.bottom = block.top
+                if self.rect.bottom >= block.rect.top and self.old_rect.bottom <= block.old_rect.top:
+                    self.rect.bottom = block.rect.top
+                    self.y = self.rect.y
                     collision_types['bottom'] = True
                     markers[2] = True
-                elif abs(block.bottom - self.rect.top) < tolerance and movement[1] <= 0:
-                    self.rect.top = block.bottom
+                    # collision on the top
+                if self.rect.top <= block.rect.bottom and self.old_rect.top >= block.old_rect.bottom:
+                    self.rect.top = block.rect.bottom
+                    self.y = self.rect.y
                     collision_types['top'] = True
                     markers[3] = True
-                self.y = self.rect.y
-                collision_types['data'].append([block, markers])
-        self.old_rect = self.rect.copy()
+                collision_types['data'].append([block.rect, markers])
         return collision_types
 
 
@@ -65,10 +71,10 @@ class Entity(pygame.sprite.Sprite):
         super().__init__(*group)
         self.x, self.y, self.width, self.height = rect
         self.rect = pygame.Rect(*rect)
-        self.physic_obg = PhysicsObj(*rect)
+        self.physic_obj = PhysicsObj(*rect)
         self.original_surf = pygame.Surface(image_shape)
         self.original_surf.set_colorkey(pygame.Color("black"))
-        self.groups_to_collide = groups_to_collide
+        self.groups_to_collide = pygame.sprite.Group(*groups_to_collide)
         self.rotated_surf = self.original_surf.copy()
         self.direction = pygame.math.Vector2()
         self.last_direction = pygame.math.Vector2()
@@ -76,13 +82,17 @@ class Entity(pygame.sprite.Sprite):
         self.sprite = None
         self.speed = speed
         self.cur_speed = speed
+        self.additional_force = pygame.Vector2((0, 0))
         self.hp = hp
         self.set_cur_speed(self.speed)
 
     def move(self, movement, objects):
-        collisions = self.physic_obg.move(movement, objects)
-        self.rect.x = self.physic_obg.x
-        self.rect.y = self.physic_obg.y
+        movement = pygame.Vector2(movement) + self.additional_force
+        collisions = self.physic_obj.move(movement, objects)
+        self.rect.x = self.physic_obj.rect.x
+        self.rect.y = self.physic_obj.rect.y
+        self.additional_force[0] = self.additional_force[0] / 2
+        self.additional_force[1] = self.additional_force[1] / 2
         return collisions
 
     def set_cur_speed(self, speed):
@@ -95,7 +105,7 @@ class Entity(pygame.sprite.Sprite):
         self.sprite.draw(surface, rect)
 
     def get_draw_rect(self):
-        return self.physic_obg.rect
+        return self.physic_obj.rect
 
     def get_surf(self):
         return self.rotated_surf

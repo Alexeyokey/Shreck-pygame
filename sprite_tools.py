@@ -60,6 +60,7 @@ class Sprite(pygame.sprite.Sprite):
         super().__init__()
         self.animations = {}
         self.animation_fps_overrides = {}
+        self.animation_inevitable = {}
         self.animation_chain_mapping = {}
         self.animation_callbacks = {}
         self.animation_temporary_callbacks = {}
@@ -78,22 +79,28 @@ class Sprite(pygame.sprite.Sprite):
         #   Set frames per second
         self.fps = fps
         self.now = 0
+        self.animation_ended = True
 
-    def add_animation(self, anim_dict, fps_override=None, loop=False):
+    def add_animation(self, anim_dict, fps_override=None, loop=False, inevitable=False):
         for name in anim_dict:
             self.animations[name] = anim_dict[name]
             if fps_override:
                 self.animation_fps_overrides[name] = fps_override
+            if inevitable:
+                self.animation_inevitable[name] = inevitable
             if loop:
                 self.chain_animation(name, name)
 
     def start_animation(self, name, restart_if_active=True, clear_time=True):
         self.resume()
-        if not restart_if_active and name == self.active_animation_key:
+        # sssssssssssssss(self.active_animation_key, self.animation_inevitable)
+        if (not restart_if_active and name == self.active_animation_key or
+                (self.active_animation_key in self.animation_inevitable and not self.animation_ended)):
             return
         if clear_time:
             self.now = 0
         self.active_animation_key = name
+        self.animation_ended = False
 
     def get_frame_num(self):
         fps = self.fps
@@ -113,15 +120,12 @@ class Sprite(pygame.sprite.Sprite):
                 self.pause()
                 self.now = frame_time * (len(active_animation.frames) - 0.5)
                 image = active_animation.frames[-1]
-                if self.angle != 0:
-                    image = pygame.transform.rotate(image, self.angle)
-                return image
+                return image, False
             self.now -= frame_time * active_animation.frame_count
             return self.get_image()
-
         image = active_animation.frames[frame_number]
         image = pygame.transform.rotate(image, self.angle)
-        return image
+        return image, True
 
     def set_angle(self, angle):
         self.angle = angle
@@ -130,7 +134,7 @@ class Sprite(pygame.sprite.Sprite):
         if self.active_animation_key not in self.animations:
             raise Sprite.InvalidAnimationKeyException(f"Animation key {self.active_animation_key} has not been added.")
         if not self.image:
-            self.image = self.get_image()
+            self.image = self.get_image()[0]
         surface.blit(self.image, coords)
 
     def pause(self):
@@ -146,7 +150,11 @@ class Sprite(pygame.sprite.Sprite):
         if not self.paused:
             self.now += dt
 
-        self.image = self.get_image()
+        image = self.get_image()
+        if image[1]:
+            self.image = image[0]
+        else:
+            self.animation_ended = True
         w = self.image.get_width()
         h = self.image.get_height()
         x = int(self.x - w / 2)
