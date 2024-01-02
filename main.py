@@ -20,7 +20,6 @@ SCREEN_HEIGHT = 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'theme_for_button.json')
 pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
-# pygame.mixer.music.play()
 vol = 0
 sensitivity = 0.00001
 sensitivity_multiplier = 1
@@ -779,9 +778,6 @@ def main():
             rect = self.rotated_surf.get_rect(center=self.entity.rect.center)
             self.rect = rect
             self.sprite.set_angle(-math.degrees(self.angle))
-            # if self.sprite.active_animation_key is None:
-            #     print(None, "bow")
-            #     print(self.sprite.animation_callbacks)
             self.sprite.update(dt)
 
         def get_draw_rect(self):
@@ -823,7 +819,6 @@ def main():
             for partickle in particle_group:
                 offset_pos = partickle.get_draw_rect().topleft - self.offset
                 partickle.draw(self.display_surface, offset_pos)
-                # pygame.draw.rect(screen, (0, 0, 0), (*offset_pos, partickle.rect.w, partickle.rect.h), 1)
             for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 offset_pos = sprite.get_draw_rect().topleft - self.offset
                 sprite.draw(self.display_surface, offset_pos)
@@ -877,19 +872,25 @@ def main():
             return self.surf
 
     running = True
+    tmx_data = load_pygame('map/map.tmx')
+    map = Map(tmx_data)
+    collide_objects = pygame.sprite.Group()
+    for layer in map.get_collision_layers():
+        for row in range(layer.height()):
+            for col in range(layer.width()):
+                if layer[row][col]:
+                    collide_objects.add(layer[row][col])
     enemies = pygame.sprite.Group()
-    particle_group = CameraGroup()
+    particle_group = pygame.sprite.Group()
     camera_group = CameraGroup()
     enemy_bullets = pygame.sprite.Group()
     player_bullets = pygame.sprite.Group()
-    player = Player(200, 100, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64), [], camera_group)
+    player = Player(200, 100, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64), [*collide_objects], camera_group)
     player.set_cur_speed(120)
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
     game_over = None
-    tmx_data = load_pygame('map/map.tmx')
-    map = Map(tmx_data)
-    levels = iter([level_1(), level_2(), level_3(), level_4()])
+    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
     screen_messages = []
     score = 0
     cur_level_counter = 0
@@ -902,7 +903,7 @@ def main():
         previous_time = pygame.time.get_ticks()
         screen.fill((75, 122, 71))
         for event in pygame.event.get():
-            if event.type == KEYDOWN:
+            if event.type == KEYDOWN and event.key != 1073742085:
                 player_movement_registered = True
                 if event.key == K_ESCAPE:
                     running = False
@@ -956,20 +957,20 @@ def main():
                     timer += cur_level[1] * 1000
                     for enemy_inf in cur_level[0]:
                         if enemy_inf[0] == "swordsman":
-                            enemy = SwordEnemy(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4], [player, *enemies],
+                            enemy = SwordEnemy(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4], [player, *enemies, *collide_objects],
                                           camera_group, enemies)
                             sword_image = pygame.Surface((16, 64))
                             enemy.sword = Sword(sword_image, enemy, player, enemy_inf[-1], (70, 70), enemy_bullets,
                                                 camera_group)
                         elif enemy_inf[0] == "archer":
                             enemy = ArcherEnemy(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4],
-                                               [player, *enemies],
+                                               [player, *enemies, *collide_objects],
                                                camera_group, enemies)
                             enemy.bow = Bow(pygame.Surface((40, 40)), enemy, player, enemy_inf[-1], 300, enemy_bullets,
                                             camera_group)
                         elif enemy_inf[0] == 'green_swordsman':
                             enemy = FastEnemy(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4],
-                                               [player, *enemies],
+                                               [player, *enemies, *collide_objects],
                                                camera_group, enemies)
             if not game_over:
                 if player_movement_registered or first_update:
@@ -991,7 +992,6 @@ def main():
                 for i in enemy_bullets:
                     if (bullet := pygame.sprite.spritecollideany(i, player_bullets)) and (i.type == 'sword_attack' or bullet.type == 'sword_attack'):
                         i.kill()
-                        bullet.kill()
                 if player.hp <= 0:
                     player.kill()
                     game_over = "Game over"

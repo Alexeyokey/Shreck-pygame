@@ -1,26 +1,13 @@
 import pygame
-
-
-class Block:
-    def __init__(self, surface, through=False):
-        super().__init__()
-        self.__through = through
-        self.__surface = surface
-        self.__rect = self.__surface.get_rect()
-
-    def get_through(self):
-        return self.__through
-
-    def get_surf(self):
-        return self.__surface
+from entities import Block
 
 
 class Layer:
-    def __init__(self, layer):
+    def __init__(self, layer, collision=False):
         self.__layer = layer
         self.__map_layer = [[None] * self.__layer.width for _ in range(self.__layer.height)]
         for x, y, surf in layer.tiles():
-            self.__map_layer[y][x] = Block(surf, True)
+            self.__map_layer[y][x] = Block(surf, x, y, collision=collision)
         self.__surf_width = surf.get_width()
         self.__surf_height = surf.get_height()
 
@@ -39,10 +26,18 @@ class Layer:
 
 class Map:
     def __init__(self, layers):
-        self.__layers = []
+        self.general_layers = []
+        self.collision_layers = []
         for i in layers:
-            self.__layers.append(Layer(i))
+            if i.name == "Слой тайлов 3":
+                layer = Layer(i, collision=True)
+                self.general_layers.append(layer)
+                self.collision_layers.append(layer)
+            else:
+                self.general_layers.append(Layer(i))
 
     def get_layers(self):
-        return self.__layers
+        return self.general_layers
 
+    def get_collision_layers(self):
+        return self.collision_layers
