@@ -646,6 +646,7 @@ def main():
             self.attacking_group = attacking_group
             self.image = image
             self.image.set_colorkey((0, 0, 0))
+            self.sprite = None
             self.rotated_surf = self.image.copy()
             self.rect = self.rotated_surf.get_rect()
             self.rect.center = self.entity.rect.center
@@ -656,8 +657,8 @@ def main():
         def get_rect(self):
             return self.rect
 
-        def draw(self, sreen, rect):
-            sreen.blit(self.rotated_surf, rect)
+        def draw(self, surface, coords):
+            self.sprite.draw(surface, coords)
 
         def get_draw_rect(self):
             return self.rect
@@ -779,8 +780,6 @@ def main():
             rect = self.rect
             return rect
 
-        def draw(self, surface, coords):
-            self.sprite.draw(surface, coords)
 
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
@@ -819,7 +818,7 @@ def main():
                 sprite.draw(self.display_surface, offset_pos)
                 real_pos = sprite.get_rect().topleft - self.offset
                 coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
-                pygame.draw.rect(screen, (255, 255, 255), coords, 1)
+                # pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
         def screen_to_wordl(self, coords):
             return coords + self.offset

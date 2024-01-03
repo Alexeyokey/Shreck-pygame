@@ -29,7 +29,7 @@ class Block(pygame.sprite.Sprite):
         return self.surface
 
 
-class PhysicsObj(object):
+class PhysicsObj:
     def __init__(self, x, y, x_size, y_size):
         self.width = x_size
         self.height = y_size
@@ -93,12 +93,9 @@ class Entity(pygame.sprite.Sprite):
         self.original_surf = pygame.Surface(image_shape)
         self.original_surf.set_colorkey(pygame.Color("black"))
         self.group_to_collide = pygame.sprite.Group(*group_to_collide)
-        self.rotated_surf = self.original_surf.copy()
-        self.direction = pygame.math.Vector2()
-        self.last_direction = pygame.math.Vector2()
-        self.last_direction.y = -1
-        self.sprite = None
+        self.direction = pygame.math.Vector2((0, 0))
         self.speed = speed
+        self.sprite = None
         self.cur_speed = speed
         self.additional_force = pygame.Vector2((0, 0))
         self.hp = hp
@@ -124,6 +121,3 @@ class Entity(pygame.sprite.Sprite):
 
     def get_draw_rect(self):
         return self.physic_obj.rect
-
-    def get_surf(self):
-        return self.rotated_surf
