@@ -1,7 +1,9 @@
+player_pos = (600, 400)
+
+
 def level_1():
     speed = 100
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5
@@ -13,7 +15,6 @@ def level_1():
 def level_2():
     speed = 100
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5
@@ -27,7 +28,6 @@ def level_2():
 def level_3():
     speed = 100
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5
@@ -41,7 +41,6 @@ def level_3():
 def level_4():
     speed = 100
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5
@@ -56,7 +55,6 @@ def level_4():
 def level_5():
     speed = 400
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5
@@ -69,7 +67,6 @@ def level_6():
     speed_arch = 200
     green_swordsman_speed = 400
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5
@@ -85,7 +82,6 @@ def level_6():
 def level_7():
     speed = 100
     hp = 100
-    player_pos = (600, 400)
     enemy_shape = (40, 40)
     enemy_respawn = 100
     shot_delay = 2.5

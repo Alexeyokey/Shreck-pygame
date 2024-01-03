@@ -5,7 +5,7 @@ def collision_test(object_1, object_list, old_rect):
     collision_list = []
     for obj in object_list:
         if obj.get_rect().colliderect(object_1) and obj.get_rect() != old_rect:
-            collision_list.append(obj.physic_obj)
+            collision_list.append(obj)
     return collision_list
 
 
@@ -46,43 +46,41 @@ class PhysicsObj(object):
         collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False, 'slant_bottom': False,
                            'data': []}
         # added collision data to "collision_types". ignore the poorly chosen variable name
-        for block in block_hit_list:
+        for sprite in block_hit_list:
+            sprite_obj = sprite.physic_obj
             markers = [False, False, False, False]
-            # if not collision_types["top"] and not collision_types["bottom"] and not collision_types["left"] and not \
-            #         collision_types["right"]:
                 # collision on the right
-            if self.rect.right >= block.rect.left and self.old_rect.right <= block.old_rect.left:
-                self.rect.right = block.rect.left
+            if self.rect.right >= sprite_obj.rect.left and self.old_rect.right <= sprite_obj.old_rect.left:
+                self.rect.right = sprite_obj.rect.left
                 self.x = self.rect.x
                 collision_types['right'] = True
                 markers[0] = True
 
             # collision on the left
-            if self.rect.left <= block.rect.right and self.old_rect.left >= block.old_rect.right:
-                self.rect.left = block.rect.right
+            if self.rect.left <= sprite_obj.rect.right and self.old_rect.left >= sprite_obj.old_rect.right:
+                self.rect.left = sprite_obj.rect.right
                 self.x = self.rect.x
                 collision_types['left'] = True
                 markers[1] = True
-            collision_types['data'].append([block.rect, markers])
+            collision_types['data'].append([sprite_obj.rect, markers, sprite])
         self.y += int(movement[1])
         self.rect.y = self.y
         block_hit_list = collision_test(self.rect, objects, self.old_rect)
-        for block in block_hit_list:
+        for sprite in block_hit_list:
+            sprite_obj = sprite.physic_obj
             markers = [False, False, False, False]
-            # if not collision_types["top"] and not collision_types["bottom"] and not collision_types["left"] and not \
-            #         collision_types["right"]:
-            if self.rect.bottom >= block.rect.top and self.old_rect.bottom <= block.old_rect.top:
-                self.rect.bottom = block.rect.top
+            if self.rect.bottom >= sprite_obj.rect.top and self.old_rect.bottom <= sprite_obj.old_rect.top:
+                self.rect.bottom = sprite_obj.rect.top
                 self.y = self.rect.y
                 collision_types['bottom'] = True
                 markers[2] = True
                 # collision on the top
-            if self.rect.top <= block.rect.bottom and self.old_rect.top >= block.old_rect.bottom:
-                self.rect.top = block.rect.bottom
+            if self.rect.top <= sprite_obj.rect.bottom and self.old_rect.top >= sprite_obj.old_rect.bottom:
+                self.rect.top = sprite_obj.rect.bottom
                 self.y = self.rect.y
                 collision_types['top'] = True
                 markers[3] = True
-            collision_types['data'].append([block.rect, markers])
+            collision_types['data'].append([sprite_obj.rect, markers, sprite])
         return collision_types
 
 
