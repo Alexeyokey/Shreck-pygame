@@ -85,14 +85,14 @@ class PhysicsObj(object):
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, speed, hp, rect, image_shape, groups_to_collide, *group):
+    def __init__(self, speed, hp, rect, image_shape, group_to_collide, *group):
         super().__init__(*group)
         self.x, self.y, self.width, self.height = rect
         self.rect = pygame.Rect(*rect)
         self.physic_obj = PhysicsObj(*rect)
         self.original_surf = pygame.Surface(image_shape)
         self.original_surf.set_colorkey(pygame.Color("black"))
-        self.groups_to_collide = pygame.sprite.Group(*groups_to_collide)
+        self.group_to_collide = pygame.sprite.Group(*group_to_collide)
         self.rotated_surf = self.original_surf.copy()
         self.direction = pygame.math.Vector2()
         self.last_direction = pygame.math.Vector2()

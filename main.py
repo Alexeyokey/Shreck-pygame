@@ -349,8 +349,8 @@ def end(score):
 
 def main():
     class Enemy(Entity):
-        def __init__(self, speed, hp, coords, image_shape, knight_name, groups_to_collide, *group):
-            super().__init__(speed, hp, (coords[0], coords[1], image_shape[0], image_shape[1]), image_shape, groups_to_collide, *group)
+        def __init__(self, speed, hp, coords, image_shape, knight_name, group_to_collide, *group):
+            super().__init__(speed, hp, (coords[0], coords[1], image_shape[0], image_shape[1]), image_shape, group_to_collide, *group)
             self.surf = pygame.Surface(image_shape)
             self.surf.set_colorkey((0, 0, 0))
             self.rect = pygame.Rect((coords[0], coords[1], image_shape[0], image_shape[1]))
@@ -425,7 +425,7 @@ def main():
 
         def get_hit(self, angle, damage):
             self.hp -= damage
-            self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.groups_to_collide)
+            self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.group_to_collide)
             self.sprite.start_animation("damage_" + self.direction)
 
         def check_death_and_kill(self):
@@ -436,8 +436,8 @@ def main():
             return pygame.Rect(self.rect.x - 20, self.rect.y - 30, self.rect.w, self.rect.h)
 
     class SwordEnemy(Enemy):
-        def __init__(self, speed, hp, coords, image_shape, groups_to_collide, *group):
-            super().__init__(speed, hp, coords, image_shape, "knight", groups_to_collide, *group)
+        def __init__(self, speed, hp, coords, image_shape, group_to_collide, *group):
+            super().__init__(speed, hp, coords, image_shape, "knight", group_to_collide, *group)
             self.sword = None
             self.cooldown_sword = 300
 
@@ -446,7 +446,7 @@ def main():
             dif_x, dif_y = super().update(dt, x_player, y_player)
             if self.death_flag:
                 dif_x, dif_y = -dif_x, -dif_y
-            self.move((dif_x, dif_y), self.groups_to_collide)
+            self.move((dif_x, dif_y), self.group_to_collide)
 
         def attack(self):
             if self.sword:
@@ -459,8 +459,8 @@ def main():
             self.death_flag = True
 
     class ArcherEnemy(Enemy):
-        def __init__(self, speed, hp, coords, image_shape, groups_to_collide, *group):
-            super().__init__(speed, hp, coords, image_shape, "knight", groups_to_collide, *group)
+        def __init__(self, speed, hp, coords, image_shape, group_to_collide, *group):
+            super().__init__(speed, hp, coords, image_shape, "knight", group_to_collide, *group)
             self.bow = None
 
         def update(self, dt):
@@ -471,7 +471,7 @@ def main():
                 dif_x, dif_y = -dif_x, -dif_y
             else:
                 dif_x, dif_y = 0, 0
-            self.move((dif_x, dif_y), self.groups_to_collide)
+            self.move((dif_x, dif_y), self.group_to_collide)
 
         def attack(self):
             if self.bow:
@@ -484,8 +484,8 @@ def main():
             self.death_flag = True
 
     class FastEnemy(Enemy):
-        def __init__(self, speed, hp, coords, image_shape, groups_to_collide, *group):
-            super().__init__(speed, hp, coords, image_shape, "green_knight", groups_to_collide, *group)
+        def __init__(self, speed, hp, coords, image_shape, group_to_collide, *group):
+            super().__init__(speed, hp, coords, image_shape, "green_knight", group_to_collide, *group)
             self.can_attack = False
             self.reverse_for_charge = False
             self.velocity = pygame.Vector2((0, 0))
@@ -509,10 +509,10 @@ def main():
             self.update_animation(dt, x_vel, y_vel)
             if self.reverse_for_charge:
                 x_vel, y_vel = -x_vel, -y_vel
-            self.move((x_vel, y_vel), self.groups_to_collide)
+            self.move((x_vel, y_vel), self.group_to_collide)
 
         def move(self, coords, objects):
-            collisions = super().move(coords, self.groups_to_collide)
+            collisions = super().move(coords, self.group_to_collide)
             self.attack(collisions)
 
         def attack(self, collisions=None):
@@ -532,8 +532,8 @@ def main():
             self.death_flag = True
 
     class Player(Entity):
-        def __init__(self, speed, hp, rect, image_shape, groups_to_collide, *group):
-            super().__init__(speed, hp, rect, image_shape, groups_to_collide, *group)
+        def __init__(self, speed, hp, rect, image_shape, group_to_collide, *group):
+            super().__init__(speed, hp, rect, image_shape, group_to_collide, *group)
             self.animation_flag = True
             self.particle_flag = False
             self.last_direction = [0, 0]
@@ -597,7 +597,7 @@ def main():
                     self.direction.x -= direction_add if self.direction.x > 0 else -direction_add
                 self.last_direction[0] = 0
             self.movement = self.direction / direction_restrict * self.cur_speed * dt
-            self.move(self.movement, self.groups_to_collide)
+            self.move(self.movement, self.group_to_collide)
             self.animation(dt)
             self.particles(self.last_direction, 0.1)
 
@@ -632,7 +632,7 @@ def main():
 
         def get_hit(self, angle, damage):
             self.hp -= damage
-            self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.groups_to_collide)
+            self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.group_to_collide)
 
         def get_draw_rect(self):
             return pygame.Rect(self.rect.x - 45, self.rect.y - 38, self.rect.w, self.rect.h)
@@ -884,7 +884,7 @@ def main():
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
     game_over = None
-    levels = iter([level_1()])
+    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
     screen_messages = []
     score = 0
     cur_level_counter = 0
