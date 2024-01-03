@@ -21,42 +21,48 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'theme_for_button.json')
 pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
 vol = 0
-sensitivity = 0.00001
 sensitivity_multiplier = 1
 
 
 def start():
-    global manager, sensitivity
+    global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
 
     welcome = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240, 150), (800, 100)),
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 400, 150), (800, 100)),
         text="Welcome to Shreck",
         manager=manager,
         object_id="#label"
     )
 
     start_btn = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 300), (400, 100)),
-        text='START',
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 98, SCREEN_HEIGHT // 2), (196, 84)),
+        text='',
         manager=manager,
-        object_id="#button"
+        object_id="#playbutton"
     )
 
     settings_btn = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 450), (400, 100)),
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 98, SCREEN_HEIGHT // 2 + 100), (196, 84)),
         text='SETTINGS',
         manager=manager,
-        object_id="#button"
+        object_id="#settingsbutton"
     )
 
-    rating_btn = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 600), (400, 100)),
-        text='Rating',
+    back_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 98, SCREEN_HEIGHT // 2 + 200),
+                                  (196, 84)),
+        text='back',
         manager=manager,
-        object_id="#button"
+        object_id="#backbutton"
     )
+    # rating_btn = pygame_gui.elements.UIButton(
+    #     relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 98, 500), (196, 84)),
+    #     text='Rating',
+    #     manager=manager,
+    #     object_id="#button"
+    # )
 
     clock = pygame.time.Clock()
     menu = True
@@ -68,9 +74,6 @@ def start():
                     menu = False
             elif event.type == QUIT:
                 menu = False
-            if event.type == pygame.MOUSEMOTION:
-                axis_values = event.rel
-                axis_values = [value * sensitivity for value in axis_values]
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == start_btn:
@@ -79,11 +82,11 @@ def start():
                     elif event.ui_element == settings_btn:
                         menu = False
                         settings()
-                    elif event.ui_element == rating_btn:
-                        menu = False
-                        rating()
+                    # elif event.ui_element == rating_btn:
+                    #     menu = False
+                    #     rating()
             manager.process_events(event)
-        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+        background_image = pygame.image.load("sprites/background.jpg").convert()
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
@@ -92,72 +95,43 @@ def start():
 
 
 def settings():
-    global manager, vol, sensitivity, sensitivity_multiplier
+    global manager, vol, sensitivity_multiplier
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
     common_button_size = (100, 100)
     MIDDLE_SCREEN_w = SCREEN_WIDTH // 2
-    setting_lbl = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240, SCREEN_HEIGHT // 2 - 3 * common_button_size[1]), (800, 100)),
-        text="Settings",
-        manager=manager,
-        object_id="#label"
-    )
-
     sound_lbl = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240, SCREEN_HEIGHT // 2 - 2 * common_button_size[1]), (800, 100)),
+        relative_rect=pygame.Rect((240, SCREEN_HEIGHT // 2 - 100), (800, 100)),
         text="Sound",
         manager=manager,
         object_id="#little_label"
     )
 
     sub_volume = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - 2 * common_button_size[0], SCREEN_HEIGHT // 2 - common_button_size[1]), common_button_size),
+        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - 1.5 * common_button_size[0], SCREEN_HEIGHT // 2), common_button_size),
         text='-',
         manager=manager,
-        object_id="#button"
+        object_id="#leftarrowbutton"
     )
 
     turn_on_mute_volume = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - common_button_size[0], SCREEN_HEIGHT // 2 - common_button_size[1]), (200, 100)),
+        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - common_button_size[0] // 2, SCREEN_HEIGHT // 2), (100, 100)),
         text='ON/OFF',
         manager=manager,
-        object_id="#button"
+        object_id="#pausebutton"
     )
 
     add_volume = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w + common_button_size[0], SCREEN_HEIGHT // 2 - common_button_size[1]), common_button_size),
+        relative_rect=pygame.Rect((MIDDLE_SCREEN_w + common_button_size[0] // 2, SCREEN_HEIGHT // 2), common_button_size),
         text='+',
         manager=manager,
-        object_id="#button"
+        object_id="#rightarrowbutton"
     )
-
-    sensitivity_lbl = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240, SCREEN_HEIGHT // 2), (800, 100)),
-        text="Sensitivity",
-        manager=manager,
-        object_id="#little_label"
-    )
-
-    add_sensitivity = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w, SCREEN_HEIGHT // 2 + common_button_size[1]), common_button_size),
-        text='+',
-        manager=manager,
-        object_id="#button"
-    )
-
-    sub_sensitivity = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - 100, SCREEN_HEIGHT // 2 + common_button_size[1]), common_button_size),
-        text='-',
-        manager=manager,
-        object_id="#button"
-    )
-    back_button_size = (common_button_size[0] * 3, common_button_size[1] // 1.5)
     back_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - back_button_size[0] // 2, SCREEN_HEIGHT // 2 + 2.5 * common_button_size[1]), (common_button_size[0] * 3, common_button_size[1] // 1.75)),
+        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - 98, SCREEN_HEIGHT // 2 + 200), (196, 84)),
         text='back',
         manager=manager,
-        object_id="#button"
+        object_id="#backbutton"
     )
 
     clock = pygame.time.Clock()
@@ -171,9 +145,6 @@ def settings():
                     start()
             elif event.type == QUIT:
                 setting = False
-            if event.type == pygame.MOUSEMOTION:
-                axis_values = event.rel
-                axis_values = [value * sensitivity for value in axis_values]
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == sub_volume:
@@ -190,14 +161,8 @@ def settings():
                     elif event.ui_element == add_volume:
                         pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() + 0.1)
                         vol = pygame.mixer.music.get_volume()
-                    elif event.ui_element == add_sensitivity:
-                        if sensitivity + 1 <= 10:
-                            sensitivity += 1
-                    elif event.ui_element == sub_sensitivity:
-                        if sensitivity - 1 <= 0:
-                            sensitivity -= 1
             manager.process_events(event)
-        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+        background_image = pygame.image.load("sprites/background.jpg").convert()
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
@@ -259,128 +224,127 @@ def end(score):
         pygame.display.update()
 
 
-def rating():
-    global manager
-    manager.clear_and_reset()
-    manager.get_theme().load_theme('theme_for_button.json')
-    background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
-
-    welcome = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240, 190), (880, 100)),
-        text="Rating",
-        manager=manager,
-        object_id="#label"
-    )
-
-    bg_panel = pygame_gui.elements.UIPanel(
-        relative_rect=pygame.Rect((190, 490), (900, 30)),
-        manager=manager,
-        object_id="#bg_panel"
-    )
-
-    real = pygame_gui.elements.UIPanel(
-        relative_rect=pygame.Rect((190, 490), (int(open('score.txt', 'r').readlines()[0]) / 30_000 * 900, 30)),
-        manager=manager,
-        object_id="#real"
-    )
-
-    img = pygame.image.load('rating_photo/bronze.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((300, 350), (100, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/silver.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((400, SCREEN_HEIGHT // 2), (110, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/gold.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((500, 350), (105, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/platinum.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((600, SCREEN_HEIGHT // 2), (100, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/diamond.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((700, 350), (100, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/champion.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((800, SCREEN_HEIGHT // 2), (120, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/grand_champion.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((900, 350), (135, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    img = pygame.image.load('rating_photo/ssl.png')
-    bronze = pygame_gui.elements.UIImage(
-        relative_rect=pygame.Rect((1000, SCREEN_HEIGHT // 2), (150, 100)),
-        image_surface=img,
-        manager=manager
-    )
-
-    # effect_color = pygame_gui.elements.UILabel(
-    #     relative_rect=pygame.Rect((0, 0), (1280, 720)),
-    #     text='',
-    #     manager=manager,
-    #     object_id="#effect_color"
-    # )
-    common_button_size = (100, 100)
-    back_button_size = (common_button_size[0] * 3, common_button_size[1] // 1.5)
-    back_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect(
-            (SCREEN_WIDTH // 2 - back_button_size[0] // 2, SCREEN_HEIGHT // 2 + 3 * common_button_size[1]),
-            (common_button_size[0] * 3, common_button_size[1] // 1.75)),
-        text='back',
-        manager=manager,
-        object_id="#button"
-    )
-
-    clock = pygame.time.Clock()
-    rat = True
-    while rat:
-        time_delta = clock.tick(60) / 1000.0
-        for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    rat = False
-                    start()
-            elif event.type == QUIT:
-                rat = False
-            if event.type == pygame.USEREVENT:
-                print(event.user_type, pygame_gui.UI_BUTTON_PRESSED)
-                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == back_button:
-                        rat = False
-                        start()
-            manager.process_events(event)
-        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
-        screen.blit(background_image, [0, 0])
-        manager.draw_ui(screen)
-        manager.update(time_delta)
-        pygame.display.flip()
-        pygame.display.update()
+# def rating():
+#     global manager
+#     manager.clear_and_reset()
+#     manager.get_theme().load_theme('theme_for_button.json')
+#     background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+#
+#     welcome = pygame_gui.elements.UILabel(
+#         relative_rect=pygame.Rect((240, 190), (880, 100)),
+#         text="Rating",
+#         manager=manager,
+#         object_id="#label"
+#     )
+#
+#     bg_panel = pygame_gui.elements.UIPanel(
+#         relative_rect=pygame.Rect((190, 490), (900, 30)),
+#         manager=manager,
+#         object_id="#bg_panel"
+#     )
+#
+#     real = pygame_gui.elements.UIPanel(
+#         relative_rect=pygame.Rect((190, 490), (int(open('score.txt', 'r').readlines()[0]) / 30_000 * 900, 30)),
+#         manager=manager,
+#         object_id="#real"
+#     )
+#
+#     img = pygame.image.load('rating_photo/bronze.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((300, 350), (100, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/silver.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((400, SCREEN_HEIGHT // 2), (110, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/gold.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((500, 350), (105, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/platinum.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((600, SCREEN_HEIGHT // 2), (100, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/diamond.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((700, 350), (100, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/champion.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((800, SCREEN_HEIGHT // 2), (120, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/grand_champion.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((900, 350), (135, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     img = pygame.image.load('rating_photo/ssl.png')
+#     bronze = pygame_gui.elements.UIImage(
+#         relative_rect=pygame.Rect((1000, SCREEN_HEIGHT // 2), (150, 100)),
+#         image_surface=img,
+#         manager=manager
+#     )
+#
+#     # effect_color = pygame_gui.elements.UILabel(
+#     #     relative_rect=pygame.Rect((0, 0), (1280, 720)),
+#     #     text='',
+#     #     manager=manager,
+#     #     object_id="#effect_color"
+#     # )
+#     common_button_size = (100, 100)
+#     back_button = pygame_gui.elements.UIButton(
+#         relative_rect=pygame.Rect(
+#             (SCREEN_WIDTH // 2 - 98, SCREEN_HEIGHT // 2 + 3 * common_button_size[1]),
+#             (196, 84)),
+#         text='back',
+#         manager=manager,
+#         object_id="#backbutton"
+#     )
+#
+#     clock = pygame.time.Clock()
+#     rat = True
+#     while rat:
+#         time_delta = clock.tick(60) / 1000.0
+#         for event in pygame.event.get():
+#             if event.type == KEYDOWN:
+#                 if event.key == K_ESCAPE:
+#                     rat = False
+#                     start()
+#             elif event.type == QUIT:
+#                 rat = False
+#             if event.type == pygame.USEREVENT:
+#                 print(event.user_type, pygame_gui.UI_BUTTON_PRESSED)
+#                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+#                     if event.ui_element == back_button:
+#                         rat = False
+#                         start()
+#             manager.process_events(event)
+#         background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
+#         screen.blit(background_image, [0, 0])
+#         manager.draw_ui(screen)
+#         manager.update(time_delta)
+#         pygame.display.flip()
+#         pygame.display.update()
 
 
 def main():

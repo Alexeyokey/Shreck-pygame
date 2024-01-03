@@ -1,7 +1,7 @@
 {
     "#button": {
         "colours": {
-            "normal_bg": "rgba(255, 255, 255, 15)",
+            "normal_bg": "rgba(255, 255, 255, 100)",
             "hovered_bg": "rgba(255, 255, 255, 75)",
             "active_bg": "rgba(255, 255, 255, 75)",
             "disabled_text": "rgb(255, 255, 255)",
@@ -19,6 +19,187 @@
         {
             "size": "30"
         }
+    },
+    "#playbutton": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(0, 0, 0, 0)",
+            "normal_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(0, 0, 0, 0)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "size": "30"
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/play/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/play/Hover.png"
+             }
+         }
+    },
+    "#rightarrowbutton": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(0, 0, 0, 0)",
+            "normal_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(0, 0, 0, 0)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "size": "30"
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/right_arrow/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/right_arrow/Hover.png"
+             }
+         }
+    },
+    "#leftarrowbutton": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(0, 0, 0, 0)",
+            "normal_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(0, 0, 0, 0)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "size": "30"
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/left_arrow/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/left_arrow/Hover.png"
+             }
+         }
+    },
+
+    "#pausebutton": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(0, 0, 0, 0)",
+            "normal_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(0, 0, 0, 0)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "size": "30"
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/pause/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/pause/Hover.png"
+             }
+         }
+    },
+    "#backbutton": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(0, 0, 0, 0)",
+            "normal_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(0, 0, 0, 0)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "size": "30"
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/back/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/back/Hover.png"
+             }
+         }
+    },
+    "#settingsbutton": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(0, 0, 0, 0)",
+            "normal_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(0, 0, 0, 0)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "size": "30"
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/settings/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/settings/Hover.png"
+             }
+         }
     },
     "#label":
     {
