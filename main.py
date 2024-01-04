@@ -614,7 +614,7 @@ def main():
 
         def animation(self, dt):
             self.sprite.update(dt)
-            mouse_pos = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+            mouse_pos = camera_group.screen_to_world(pygame.mouse.get_pos())
             if mouse_pos[0] > self.rect.centerx:
                 if not self.direction.x and not self.direction.y:
                     self.sprite.start_animation('wait_r', restart_if_active=False)
@@ -710,7 +710,7 @@ def main():
             if self.attack_flag and self.attack_timer < pygame.time.get_ticks():
                 self.attack()
             if not self.target:
-                target = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+                target = camera_group.screen_to_world(pygame.mouse.get_pos())
             else:
                 target = self.target.get_rect().center
             origin_center = self.entity.get_rect().center
@@ -766,7 +766,7 @@ def main():
 
         def update(self, dt):
             if not self.target:
-                target = camera_group.screen_to_wordl(pygame.mouse.get_pos())
+                target = camera_group.screen_to_world(pygame.mouse.get_pos())
             else:
                 target = self.target.get_rect().center
             self.angle = get_angle_between(target, self.entity.rect.center)
@@ -779,7 +779,6 @@ def main():
         def get_draw_rect(self):
             rect = self.rect
             return rect
-
 
     class CameraGroup(pygame.sprite.Group):
         def __init__(self):
@@ -801,15 +800,13 @@ def main():
 
         def custom_draw(self, screen, layers, player):
             self.target_camera(player)
-            for layer in layers:
-                for row in range(layer.height()):
-                    for col in range(layer.width()):
-                        if layer[row][col]:
-                            size = layer.surf_size()
-                            dest = (col * size[0], row * size[1])
-                            if (player.get_rect().bottom // size[1], player.get_rect().centerx // size[0]) == (row, col):
-                                self.particle_player_color = layer[row][col].get_surf().get_at((player.get_rect().centerx % size[0], player.get_rect().bottom % size[1]))
-                            self.display_surface.blit(layer[row][col].get_surf(), dest - self.offset)
+            for block in general_objects:
+                offset_pos = block.get_draw_rect().topleft - self.offset
+                block_rect = block.get_rect()
+                if (player.get_rect().bottom // block_rect.h, player.get_rect().centerx // block_rect.w) == (block_rect.y // block_rect.h, block_rect.x // block_rect.w):
+                    self.particle_player_color = block.get_surf().get_at(
+                        (player.get_rect().centerx % block_rect.w, player.get_rect().bottom % block_rect.h))
+                block.draw(self.display_surface, offset_pos)
             for partickle in particle_group:
                 offset_pos = partickle.get_draw_rect().topleft - self.offset
                 partickle.draw(self.display_surface, offset_pos)
@@ -820,7 +817,7 @@ def main():
                 coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
                 # pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
-        def screen_to_wordl(self, coords):
+        def screen_to_world(self, coords):
             return coords + self.offset
 
     class Bullet(pygame.sprite.Sprite):
@@ -869,14 +866,17 @@ def main():
     tmx_data = load_pygame('map/map.tmx')
     map = Map(tmx_data)
     collide_objects = pygame.sprite.Group()
-    for layer in map.get_collision_layers():
+    general_objects = pygame.sprite.Group()
+    for layer in map.general_layers:
         for row in range(layer.height()):
             for col in range(layer.width()):
                 if layer[row][col]:
-                    collide_objects.add(layer[row][col])
+                    general_objects.add(layer[row][col])
+                    if layer[row][col].get_collision():
+                        collide_objects.add(layer[row][col])
+    camera_group = CameraGroup()
     enemies = pygame.sprite.Group()
     particle_group = pygame.sprite.Group()
-    camera_group = CameraGroup()
     enemy_bullets = pygame.sprite.Group()
     player_bullets = pygame.sprite.Group()
     player = Player(200, 100, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, 38, 55), (64, 64), [*collide_objects], camera_group)

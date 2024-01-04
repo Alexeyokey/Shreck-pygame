@@ -3,11 +3,11 @@ from entities import Block
 
 
 class Layer:
-    def __init__(self, layer, collision=False):
+    def __init__(self, layer, collision=False, start_pos=(0, 0)):
         self.__layer = layer
         self.__map_layer = [[None] * self.__layer.width for _ in range(self.__layer.height)]
         for x, y, surf in layer.tiles():
-            self.__map_layer[y][x] = Block(surf, x, y, collision=collision)
+            self.__map_layer[y][x] = Block(surf, x, y, start_pos, collision=collision)
         self.__surf_width = surf.get_width()
         self.__surf_height = surf.get_height()
 

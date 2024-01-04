@@ -1,32 +1,32 @@
 import pygame, math, os
 
 
-def collision_test(object_1, object_list, old_rect):
-    collision_list = []
-    for obj in object_list:
-        if obj.get_rect().colliderect(object_1) and obj.get_rect() != old_rect:
-            collision_list.append(obj)
-    return collision_list
-
-
 class Block(pygame.sprite.Sprite):
-    def __init__(self, surface, x, y, collision=False):
+    def __init__(self, surface, x, y, start_pos, collision=False):
         super().__init__()
         self.collision = collision
         self.surface = surface
         self.rect = self.surface.get_rect()
-        self.rect.topleft = (x * self.surface.get_width(), y * self.surface.get_height())
+        self.rect.topleft = (start_pos[0] + x * self.surface.get_width(), start_pos[1] + y * self.surface.get_height())
         if collision:
             self.physic_obj = PhysicsObj(*self.rect)
 
-    def get_through(self):
+    def get_collision(self):
         return self.collision
 
     def get_rect(self):
         return self.rect
 
+    def get_draw_rect(self):
+        return self.rect
+
     def get_surf(self):
         return self.surface
+
+    def draw(self, surface, coords):
+        surface.blit(self.surface, coords)
+
+
 
 
 class PhysicsObj:
@@ -38,18 +38,25 @@ class PhysicsObj:
         self.y = y
         self.old_rect = self.rect.copy()
 
+    def collision_test(self, object_1, object_list, old_rect):
+        collision_list = []
+        for obj in object_list:
+            if obj.get_rect().colliderect(object_1) and obj.get_rect() != old_rect:
+                collision_list.append(obj)
+        return collision_list
+
     def move(self, movement, objects):
         self.old_rect = self.rect.copy()
         self.x += int(movement[0])
         self.rect.x = self.x
-        block_hit_list = collision_test(self.rect, objects, self.old_rect)
+        block_hit_list = self.collision_test(self.rect, objects, self.old_rect)
         collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False, 'slant_bottom': False,
                            'data': []}
         # added collision data to "collision_types". ignore the poorly chosen variable name
         for sprite in block_hit_list:
             sprite_obj = sprite.physic_obj
             markers = [False, False, False, False]
-                # collision on the right
+            # collision on the right
             if self.rect.right >= sprite_obj.rect.left and self.old_rect.right <= sprite_obj.old_rect.left:
                 self.rect.right = sprite_obj.rect.left
                 self.x = self.rect.x
@@ -65,7 +72,7 @@ class PhysicsObj:
             collision_types['data'].append([sprite_obj.rect, markers, sprite])
         self.y += int(movement[1])
         self.rect.y = self.y
-        block_hit_list = collision_test(self.rect, objects, self.old_rect)
+        block_hit_list = self.collision_test(self.rect, objects, self.old_rect)
         for sprite in block_hit_list:
             sprite_obj = sprite.physic_obj
             markers = [False, False, False, False]
