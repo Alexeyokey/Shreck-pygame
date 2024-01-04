@@ -87,7 +87,7 @@ def start():
                     #     menu = False
                     #     rating()
             manager.process_events(event)
-        screen.blit(background_image, [0, 0])
+        screen.blit(background_image, (0, 0))
         manager.draw_ui(screen)
         manager.update(time_delta)
         pygame.display.flip()
@@ -423,10 +423,16 @@ def main():
             self.rect.y = self.physic_obj.y
             return collisions
 
-        def get_hit(self, angle, damage):
+        def get_hit(self, angle, damage, attack):
             self.hp -= damage
             self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.group_to_collide)
             self.sprite.start_animation("damage_" + self.direction)
+            if attack == "sword_attack" and not enemy.death_flag:
+                sword_hit.play()
+            elif attack == "arrow" and not enemy.death_flag:
+                bow_shoot.stop()
+                bow_hit.play()
+
 
         def check_death_and_kill(self):
             if self.death_flag:
@@ -483,7 +489,7 @@ def main():
                 enemy.bow = None
             self.death_flag = True
 
-    class FastEnemy(Enemy):
+    class GreenKnight(Enemy):
         def __init__(self, speed, hp, coords, image_shape, group_to_collide, *group):
             super().__init__(speed, hp, coords, image_shape, "green_knight", group_to_collide, *group)
             self.can_attack = False
@@ -521,11 +527,12 @@ def main():
                     if i[0] == player.rect:
                         if self.can_attack:
                             player.additional_force = self.velocity * 30
-                            player.get_hit(0, 50)
+                            ram_sound.play()
+                            player.get_hit(0, 50, "hands")
                             self.velocity = pygame.Vector2(0, 0)
                         else:
                             player.additional_force = self.velocity * 10
-                            player.get_hit(0, 10)
+                            player.get_hit(0, 10, "hands")
                             self.reverse_for_charge = True
 
         def death(self):
@@ -628,15 +635,17 @@ def main():
 
         def move(self, movement, objects):
             collisions = super().move(movement, objects)
-            for i in collisions['data']:
-                if i[2] in collide_objects:
-                    self.hp -= 10
-                    self.additional_force = pygame.Vector2(-self.direction / 2)
-                    break
+            # for i in collisions['data']:
+            #     if i[2] in collide_objects:
+            #         self.hp -= 10
+            #         self.additional_force = pygame.Vector2(-self.direction / 2)
+            #         break
 
-        def get_hit(self, angle, damage):
+        def get_hit(self, angle, damage, attack):
             self.hp -= damage
             self.move((math.cos(angle) * 10, math.sin(angle) * 10), self.group_to_collide)
+            if attack == 'arrow':
+                bow_hit.play()
 
         def get_draw_rect(self):
             return pygame.Rect(self.rect.x - 45, self.rect.y - 38, self.rect.w, self.rect.h)
@@ -684,7 +693,7 @@ def main():
             attack_right = Animation.from_path('sprites/attacking_sword.png', (4, 1), 4, reverse_x=False, scale=2)
             attack_left = Animation.from_path('sprites/attacking_sword_left.png', (4, 1), 4, reverse_x=False, scale=2, reverse_animation=True)
             self.sprite.add_animation({"idle_left": idle_left, "idle_right": idle_right}, loop=True, fps_override=1)
-            self.sprite.add_animation({"attack_right": attack_right, "attack_left": attack_left}, loop=False)
+            self.sprite.add_animation({"attack_right": attack_right, "attack_left": attack_left}, inevitable=True)
             self.sprite.add_callback('attack_right', self.change_to_idle)
             self.sprite.add_callback('attack_left', self.change_to_idle)
             self.sprite.start_animation('idle_right')
@@ -702,7 +711,8 @@ def main():
                 self.timer = pygame.time.get_ticks() + self.shot_delay
 
         def attack(self):
-            self.state = 'attack'
+            sword_sound.play()
+            self.sprite.start_animation('attack_' + self.direction)
             coords = pygame.Vector2(self.entity.rect.center)
             coords[0] += math.cos(self.angle) * 60
             coords[1] += math.sin(self.angle) * 50
@@ -805,7 +815,7 @@ def main():
 
         def custom_draw(self, screen, player):
             self.target_camera(player)
-            screen.blit(back_image, pygame.Vector2((-500, -500)) - self.offset)
+            screen.blit(back_image, pygame.Vector2((-300, -500)) - self.offset)
             player_rect = player.get_rect()
             for block in general_objects:
                 offset_pos = block.get_draw_rect().topleft - self.offset
@@ -870,7 +880,7 @@ def main():
             return self.surf
 
     running = True
-    tmx_main_map = load_pygame('map/map.tmx')
+    tmx_main_map = load_pygame('map/mymap.tmx')
     map = Map(tmx_main_map)
     collide_objects = pygame.sprite.Group()
     general_objects = pygame.sprite.Group()
@@ -902,13 +912,15 @@ def main():
     step_sound = pygame.mixer.Sound("sounds/step_sound.ogg")
     step_sound.set_volume(0.3)
     sword_sound = pygame.mixer.Sound("sounds/miss.ogg")
-    sword_sound.set_volume(0.5)
+    sword_sound.set_volume(0.4)
     sword_hit = pygame.mixer.Sound("sounds/sword_hit.ogg")
-    sword_hit.set_volume(0.3)
+    sword_hit.set_volume(0.2)
     bow_shoot = pygame.mixer.Sound("sounds/bow_shoot.wav")
     bow_shoot.set_volume(0.075)
     bow_hit = pygame.mixer.Sound("sounds/bow_hit.wav")
     bow_hit.set_volume(0.5)
+    ram_sound = pygame.mixer.Sound("sounds/ram_sound1.wav")
+    ram_sound.set_volume(0.2)
     while running:
         clock.tick(60)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
@@ -940,10 +952,8 @@ def main():
                         player.sword = None
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if player.bow:
-                    # bow_shoot.play(0, 1000)
                     player.bow.bow_tense()
                 elif player.sword:
-                    sword_sound.play()
                     player.sword.try_attack()
             elif event.type == QUIT:
                 running = False
@@ -982,7 +992,7 @@ def main():
                             enemy.bow = Bow(pygame.Surface((40, 40)), enemy, player, enemy_inf[-1], 300, enemy_bullets,
                                             camera_group)
                         elif enemy_inf[0] == 'green_swordsman':
-                            enemy = FastEnemy(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4],
+                            enemy = GreenKnight(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4],
                                                [player, *enemies, *collide_objects],
                                                camera_group, enemies)
             if not game_over:
@@ -994,18 +1004,13 @@ def main():
                     for enemy in enemies:
                         enemy.attack()
                         if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
-                            if collided_sprite.type == "sword_attack" and not enemy.death_flag:
-                                sword_hit.play()
-                            elif collided_sprite.type == "arrow" and not enemy.death_flag:
-                                bow_shoot.stop()
-                                bow_hit.play()
-                            enemy.get_hit(collided_sprite.angle, collided_sprite.damage)
+                            enemy.get_hit(collided_sprite.angle, collided_sprite.damage, collided_sprite.type)
                             collided_sprite.collide_action()
                         if enemy.hp <= 0 and not enemy.death_flag:
                            enemy.death()
                            score += 100
                     if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
-                        player.get_hit(bullet.angle, bullet.damage)
+                        player.get_hit(bullet.angle, bullet.damage, bullet.type)
                         bullet.kill()
                     for i in enemy_bullets:
                         if (bullet := pygame.sprite.spritecollideany(i, player_bullets)) and (i.type == 'sword_attack' or bullet.type == 'sword_attack'):

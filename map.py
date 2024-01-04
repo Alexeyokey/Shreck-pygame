@@ -7,6 +7,7 @@ class Layer:
         self.__layer = layer
         self.__map_layer = [[None] * self.__layer.width for _ in range(self.__layer.height)]
         for x, y, surf in layer.tiles():
+            surf = pygame.transform.scale(surf, (surf.get_width() * 1.7, surf.get_height() * 1.7))
             self.__map_layer[y][x] = Block(surf, x, y, surf.get_width(), surf.get_height(), start_pos, collision=collision)
 
     def width(self):
@@ -24,10 +25,13 @@ class Map:
         self.general_layers = []
         self.collision_layers = []
         for i in layers:
-            if i.name == "Columns":
+            if i.name[0:7] == "collide":
                 layer = Layer(i, collision=True)
-                self.general_layers.append(layer)
                 self.collision_layers.append(layer)
+                self.general_layers.append(layer)
+            elif i.name == "center":
+                layer = Layer(i, collision=False, start_pos=(17 * 1.75, 17 * 1.75))
+                self.general_layers.append(layer)
             else:
                 self.general_layers.append(Layer(i))
 
