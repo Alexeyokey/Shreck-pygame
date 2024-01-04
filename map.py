@@ -7,12 +7,7 @@ class Layer:
         self.__layer = layer
         self.__map_layer = [[None] * self.__layer.width for _ in range(self.__layer.height)]
         for x, y, surf in layer.tiles():
-            self.__map_layer[y][x] = Block(surf, x, y, start_pos, collision=collision)
-        self.__surf_width = surf.get_width()
-        self.__surf_height = surf.get_height()
-
-    def surf_size(self):
-        return self.__surf_width, self.__surf_height
+            self.__map_layer[y][x] = Block(surf, x, y, surf.get_width(), surf.get_height(), start_pos, collision=collision)
 
     def width(self):
         return self.__layer.width
@@ -29,7 +24,7 @@ class Map:
         self.general_layers = []
         self.collision_layers = []
         for i in layers:
-            if i.name == "Слой тайлов 3":
+            if i.name == "Columns":
                 layer = Layer(i, collision=True)
                 self.general_layers.append(layer)
                 self.collision_layers.append(layer)

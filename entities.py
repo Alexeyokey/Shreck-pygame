@@ -2,12 +2,16 @@ import pygame, math, os
 
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, surface, x, y, start_pos, collision=False):
+    def __init__(self, surface, x, y, width, height, start_pos, collision=False):
         super().__init__()
         self.collision = collision
         self.surface = surface
         self.rect = self.surface.get_rect()
-        self.rect.topleft = (start_pos[0] + x * self.surface.get_width(), start_pos[1] + y * self.surface.get_height())
+        self.width = width
+        self.height = height
+        self.rect.topleft = (start_pos[0] + x * self.width, start_pos[1] + y * self.height)
+        self.rect.w = self.width
+        self.rect.h = self.height
         if collision:
             self.physic_obj = PhysicsObj(*self.rect)
 
@@ -25,8 +29,6 @@ class Block(pygame.sprite.Sprite):
 
     def draw(self, surface, coords):
         surface.blit(self.surface, coords)
-
-
 
 
 class PhysicsObj:

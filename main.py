@@ -66,6 +66,7 @@ def start():
 
     clock = pygame.time.Clock()
     menu = True
+    background_image = pygame.image.load("sprites/background.jpg").convert()
     while menu:
         time_delta = clock.tick(60) / 1000.0
         for event in pygame.event.get():
@@ -86,7 +87,6 @@ def start():
                     #     menu = False
                     #     rating()
             manager.process_events(event)
-        background_image = pygame.image.load("sprites/background.jpg").convert()
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
@@ -136,6 +136,7 @@ def settings():
 
     clock = pygame.time.Clock()
     setting = True
+    background_image = pygame.image.load("sprites/background.jpg").convert()
     while setting:
         time_delta = clock.tick(60) / 1000.0
         for event in pygame.event.get():
@@ -162,7 +163,6 @@ def settings():
                         pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() + 0.1)
                         vol = pygame.mixer.music.get_volume()
             manager.process_events(event)
-        background_image = pygame.image.load("sprites/background.jpg").convert()
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
@@ -198,6 +198,7 @@ def end(score):
 
     clock = pygame.time.Clock()
     finish = True
+    background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
     while finish:
         time_delta = clock.tick(60) / 1000.0
         for event in pygame.event.get():
@@ -216,7 +217,6 @@ def end(score):
                         finish = False
                         start()
             manager.process_events(event)
-        background_image = pygame.image.load("28360f8f3ee5caa2969db8131e70a01c.jpg").convert()
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
@@ -543,7 +543,6 @@ def main():
             self.sprite = Sprite(8)
             self.particle_time_start = None
             self.movement = pygame.Vector2((0, 0))
-            self.particle_color = "#ffb476"
             wait_r = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
                                          scale=2)
             wait_l = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
@@ -627,7 +626,7 @@ def main():
             for i in collisions['data']:
                 if i[2] in collide_objects:
                     self.hp -= 10
-                    super().move(-self.direction / 100 * 50, objects)
+                    self.additional_force = pygame.Vector2(-self.direction / 2)
                     break
 
         def get_hit(self, angle, damage):
@@ -747,6 +746,7 @@ def main():
             super().__init__(image, entity, target, shot_delay, attacking_group, *group)
             self.sprite = Sprite(4)
             self.arrow_speed = arrow_speed
+            self.arrow_image = load_image("arrow.png", (255, 255, 255), (30, 10))
             idle = Animation.from_path('sprites/bow.png', (4, 1), 1, reverse_x=False, scale=2.5)
             attack = Animation.from_path('sprites/bow.png', (4, 1), 4, reverse_x=False, scale=2.5)
             self.sprite.add_animation({"idle": idle}, fps_override=1)
@@ -761,8 +761,7 @@ def main():
                 self.timer = pygame.time.get_ticks() + self.shot_delay
 
         def shoot(self, speed):
-            image = load_image("arrow.png", (255, 255, 255), (30, 10))
-            Bullet(speed, 50, "arrow", self.rect.center, self.angle, 10, image, self.attacking_group, self.group)
+            Bullet(speed, 50, "arrow", self.rect.center, self.angle, 10, self.arrow_image, self.attacking_group, self.group)
 
         def update(self, dt):
             if not self.target:
@@ -798,8 +797,9 @@ def main():
             self.offset.x = target.rect.centerx - self.half_w - (x - mouse_pos.x) * 0.3
             self.offset.y = target.rect.centery - self.half_h - (y - mouse_pos.y) * 0.3
 
-        def custom_draw(self, screen, layers, player):
+        def custom_draw(self, screen, player):
             self.target_camera(player)
+            screen.blit(back_image, pygame.Vector2((-500, -500)) - self.offset)
             for block in general_objects:
                 offset_pos = block.get_draw_rect().topleft - self.offset
                 block_rect = block.get_rect()
@@ -813,8 +813,8 @@ def main():
             for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 offset_pos = sprite.get_draw_rect().topleft - self.offset
                 sprite.draw(self.display_surface, offset_pos)
-                real_pos = sprite.get_rect().topleft - self.offset
-                coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
+                # real_pos = sprite.get_rect().topleft - self.offset
+                # coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
                 # pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
         def screen_to_world(self, coords):
@@ -863,8 +863,8 @@ def main():
             return self.surf
 
     running = True
-    tmx_data = load_pygame('map/map.tmx')
-    map = Map(tmx_data)
+    tmx_main_map = load_pygame('map/map.tmx')
+    map = Map(tmx_main_map)
     collide_objects = pygame.sprite.Group()
     general_objects = pygame.sprite.Group()
     for layer in map.general_layers:
@@ -874,6 +874,7 @@ def main():
                     general_objects.add(layer[row][col])
                     if layer[row][col].get_collision():
                         collide_objects.add(layer[row][col])
+    back_image = load_image('additional_map.png')
     camera_group = CameraGroup()
     enemies = pygame.sprite.Group()
     particle_group = pygame.sprite.Group()
@@ -890,11 +891,12 @@ def main():
     previous_time = pygame.time.get_ticks()
     player_movement_registered = False
     first_update = True
+    sword_image = pygame.Surface((16, 64))
     while running:
         clock.tick(60)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
         previous_time = pygame.time.get_ticks()
-        screen.fill((75, 122, 71))
+        screen.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == KEYDOWN and event.key != 1073742085:
                 player_movement_registered = True
@@ -952,7 +954,6 @@ def main():
                         if enemy_inf[0] == "swordsman":
                             enemy = SwordEnemy(enemy_inf[1], enemy_inf[2], enemy_inf[3], enemy_inf[4], [player, *enemies, *collide_objects],
                                           camera_group, enemies)
-                            sword_image = pygame.Surface((16, 64))
                             enemy.sword = Sword(sword_image, enemy, player, enemy_inf[-1], (70, 70), enemy_bullets,
                                                 camera_group)
                         elif enemy_inf[0] == "archer":
@@ -970,7 +971,7 @@ def main():
                     camera_group.update(dt)
                     first_update = False
                 particle_group.update(dt)
-                camera_group.custom_draw(screen, map.get_layers(), player)
+                camera_group.custom_draw(screen, player)
                 for enemy in enemies:
                     enemy.attack()
                     if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
