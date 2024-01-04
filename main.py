@@ -11,7 +11,7 @@ from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
 import pygame_gui
-
+pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
 
 info = pygame.display.Info()
@@ -599,6 +599,11 @@ def main():
             self.move(self.movement, self.group_to_collide)
             self.animation(dt)
             self.particles(self.last_direction, 0.1)
+            # if self.movement:
+            #     if not pygame.mixer.get_busy():
+            #         step_sound_playing = step_sound.play(0, 1000, 0)
+            # else:
+            #     pygame.mixer.stop()
 
         def particles(self, direction, duration):
             x_direction = -direction[0]
@@ -752,6 +757,7 @@ def main():
             self.sprite.add_animation({"idle": idle}, fps_override=1)
             self.sprite.add_animation({"attack": attack})
             self.sprite.start_animation('idle')
+            self.sprite.add_callback("attack", lambda: bow_shoot.play())
             self.sprite.add_callback("attack", lambda: self.shoot(self.arrow_speed))
             self.sprite.add_callback("attack", lambda: self.sprite.start_animation('idle'))
 
@@ -893,6 +899,16 @@ def main():
     player_movement_registered = False
     first_update = True
     sword_image = pygame.Surface((16, 64))
+    step_sound = pygame.mixer.Sound("sounds/step_sound.ogg")
+    step_sound.set_volume(0.3)
+    sword_sound = pygame.mixer.Sound("sounds/miss.ogg")
+    sword_sound.set_volume(0.5)
+    sword_hit = pygame.mixer.Sound("sounds/sword_hit.ogg")
+    sword_hit.set_volume(0.3)
+    bow_shoot = pygame.mixer.Sound("sounds/bow_shoot.wav")
+    bow_shoot.set_volume(0.075)
+    bow_hit = pygame.mixer.Sound("sounds/bow_hit.wav")
+    bow_hit.set_volume(0.5)
     while running:
         clock.tick(60)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
@@ -924,8 +940,10 @@ def main():
                         player.sword = None
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if player.bow:
+                    # bow_shoot.play(0, 1000)
                     player.bow.bow_tense()
                 elif player.sword:
+                    sword_sound.play()
                     player.sword.try_attack()
             elif event.type == QUIT:
                 running = False
@@ -968,7 +986,6 @@ def main():
                                                [player, *enemies, *collide_objects],
                                                camera_group, enemies)
             if not game_over:
-                print(dt)
                 camera_group.custom_draw(screen, player)
                 if player_movement_registered or first_update:
                     first_update = False
@@ -977,6 +994,11 @@ def main():
                     for enemy in enemies:
                         enemy.attack()
                         if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
+                            if collided_sprite.type == "sword_attack" and not enemy.death_flag:
+                                sword_hit.play()
+                            elif collided_sprite.type == "arrow" and not enemy.death_flag:
+                                bow_shoot.stop()
+                                bow_hit.play()
                             enemy.get_hit(collided_sprite.angle, collided_sprite.damage)
                             collided_sprite.collide_action()
                         if enemy.hp <= 0 and not enemy.death_flag:
