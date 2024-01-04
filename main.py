@@ -800,10 +800,11 @@ def main():
         def custom_draw(self, screen, player):
             self.target_camera(player)
             screen.blit(back_image, pygame.Vector2((-500, -500)) - self.offset)
+            player_rect = player.get_rect()
             for block in general_objects:
                 offset_pos = block.get_draw_rect().topleft - self.offset
                 block_rect = block.get_rect()
-                if (player.get_rect().bottom // block_rect.h, player.get_rect().centerx // block_rect.w) == (block_rect.y // block_rect.h, block_rect.x // block_rect.w):
+                if (player_rect.bottom // block_rect.h, player_rect.centerx // block_rect.w) == (block_rect.y // block_rect.h, block_rect.x // block_rect.w):  # получение цвета для частиц игрока съедает фпс, нужна оптимизация
                     self.particle_player_color = block.get_surf().get_at(
                         (player.get_rect().centerx % block_rect.w, player.get_rect().bottom % block_rect.h))
                 block.draw(self.display_surface, offset_pos)
@@ -967,34 +968,35 @@ def main():
                                                [player, *enemies, *collide_objects],
                                                camera_group, enemies)
             if not game_over:
-                if player_movement_registered or first_update:
-                    camera_group.update(dt)
-                    first_update = False
-                particle_group.update(dt)
+                print(dt)
                 camera_group.custom_draw(screen, player)
-                for enemy in enemies:
-                    enemy.attack()
-                    if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
-                        enemy.get_hit(collided_sprite.angle, collided_sprite.damage)
-                        collided_sprite.collide_action()
-                    if enemy.hp <= 0 and not enemy.death_flag:
-                       enemy.death()
-                       score += 100
-                if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
-                    player.get_hit(bullet.angle, bullet.damage)
-                    bullet.kill()
-                for i in enemy_bullets:
-                    if (bullet := pygame.sprite.spritecollideany(i, player_bullets)) and (i.type == 'sword_attack' or bullet.type == 'sword_attack'):
-                        i.kill()
-                if player.hp <= 0:
-                    player.kill()
-                    game_over = "Game over"
-                for message_box in screen_messages:
-                    for message in message_box:
-                        screen.blit(message[0], message[1])
-                        if pygame.time.get_ticks() - message[2] >= message[3]:
-                            screen_messages.remove(message_box)
-                            break
+                if player_movement_registered or first_update:
+                    first_update = False
+                    camera_group.update(dt)
+                    particle_group.update(dt)
+                    for enemy in enemies:
+                        enemy.attack()
+                        if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
+                            enemy.get_hit(collided_sprite.angle, collided_sprite.damage)
+                            collided_sprite.collide_action()
+                        if enemy.hp <= 0 and not enemy.death_flag:
+                           enemy.death()
+                           score += 100
+                    if (bullet := pygame.sprite.spritecollideany(player, enemy_bullets)):
+                        player.get_hit(bullet.angle, bullet.damage)
+                        bullet.kill()
+                    for i in enemy_bullets:
+                        if (bullet := pygame.sprite.spritecollideany(i, player_bullets)) and (i.type == 'sword_attack' or bullet.type == 'sword_attack'):
+                            i.kill()
+                    if player.hp <= 0:
+                        player.kill()
+                        game_over = "Game over"
+                    for message_box in screen_messages:
+                        for message in message_box:
+                            screen.blit(message[0], message[1])
+                            if pygame.time.get_ticks() - message[2] >= message[3]:
+                                screen_messages.remove(message_box)
+                                break
         else:
             main_font = pygame.font.Font(None, 72)
             title = pygame.font.Font(None, 144).render(str(game_over), 1, (255, 255, 255))
