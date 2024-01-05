@@ -918,7 +918,7 @@ def main():
     bow_shoot = pygame.mixer.Sound("sounds/bow_shoot.wav")
     bow_shoot.set_volume(0.075)
     bow_hit = pygame.mixer.Sound("sounds/bow_hit.wav")
-    bow_hit.set_volume(0.5)
+    bow_hit.set_volume(0.3)
     ram_sound = pygame.mixer.Sound("sounds/ram_sound1.wav")
     ram_sound.set_volume(0.2)
     while running:

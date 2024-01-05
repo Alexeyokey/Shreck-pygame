@@ -1,4 +1,4 @@
-player_pos = (1060, 600)
+player_pos = (1060, 500)
 
 
 def level_1():
