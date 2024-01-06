@@ -1,35 +1,14 @@
 {
     "#button": {
         "colours": {
-            "normal_bg": "rgba(255, 255, 255, 100)",
-            "hovered_bg": "rgba(255, 255, 255, 75)",
-            "active_bg": "rgba(255, 255, 255, 75)",
-            "disabled_text": "rgb(255, 255, 255)",
-            "hovered_text": "rgb(255, 255, 255)",
-            "normal_text": "rgb(255, 255, 255)",
-            "selected_text": "rgb(255, 255, 255)",
-            "active_text": "rgb(255, 255, 255)",
-            "normal_border": "rgba(255, 255, 255, 75)",
-            "hovered_border": "rgba(255, 255, 255, 130)",
-            "disabled_border": "rgba(255, 255, 255, 130)",
-            "selected_border": "rgba(255, 255, 255, 130)",
-            "active_border": "rgba(255, 255, 255, 75)"
-        },
-        "font":
-        {
-            "size": "30"
-        }
-    },
-    "#playbutton": {
-        "colours": {
             "normal_bg": "rgba(0, 0, 0, 0)",
             "hovered_bg": "rgba(0, 0, 0, 0)",
             "active_bg": "rgba(0, 0, 0, 0)",
             "disabled_text": "rgba(0, 0, 0, 0)",
-            "hovered_text": "rgba(0, 0, 0, 0)",
-            "normal_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(255, 255, 255, 255)",
+            "normal_text": "rgba(255, 255, 255, 255)",
             "selected_text": "rgba(0, 0, 0, 0)",
-            "active_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(255, 255, 255, 255)",
             "normal_border": "rgba(0, 0, 0, 0)",
             "hovered_border": "rgba(0, 0, 0, 0)",
             "disabled_border": "rgba(0, 0, 0, 0)",
@@ -38,15 +17,57 @@
         },
         "font":
         {
-            "size": "30"
+            "name": "montserrat",
+            "size": "28",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "better-vcr-5.2.ttf"
+            }
         },
         "images":
          {
              "normal_image": {
-                 "path": "button_sprites/play/Default.png"
+                 "path": "button_sprites/Button/Rect/Fill/Default.png"
              },
              "hovered_image": {
-                 "path": "button_sprites/play/Hover.png"
+                 "path": "button_sprites/Button/Rect/Fill/Hover.png"
+             }
+         }
+    },
+    "#long_text": {
+        "colours": {
+            "normal_bg": "rgba(0, 0, 0, 0)",
+            "hovered_bg": "rgba(0, 0, 0, 0)",
+            "active_bg": "rgba(0, 0, 0, 0)",
+            "disabled_text": "rgba(0, 0, 0, 0)",
+            "hovered_text": "rgba(255, 255, 255, 255)",
+            "normal_text": "rgba(255, 255, 255, 255)",
+            "selected_text": "rgba(0, 0, 0, 0)",
+            "active_text": "rgba(255, 255, 255, 255)",
+            "normal_border": "rgba(0, 0, 0, 0)",
+            "hovered_border": "rgba(0, 0, 0, 0)",
+            "disabled_border": "rgba(0, 0, 0, 0)",
+            "selected_border": "rgba(0, 0, 0, 0)",
+            "active_border": "rgba(0, 0, 0, 0)"
+        },
+        "font":
+        {
+            "name": "montserrat",
+            "size": "20",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "better-vcr-5.2.ttf"
+            }
+        },
+        "images":
+         {
+             "normal_image": {
+                 "path": "button_sprites/Button/Rect/Fill/Default.png"
+             },
+             "hovered_image": {
+                 "path": "button_sprites/Button/Rect/Fill/Hover.png"
              }
          }
     },
@@ -65,10 +86,6 @@
             "disabled_border": "rgba(0, 0, 0, 0)",
             "selected_border": "rgba(0, 0, 0, 0)",
             "active_border": "rgba(0, 0, 0, 0)"
-        },
-        "font":
-        {
-            "size": "30"
         },
         "images":
          {
@@ -95,10 +112,6 @@
             "disabled_border": "rgba(0, 0, 0, 0)",
             "selected_border": "rgba(0, 0, 0, 0)",
             "active_border": "rgba(0, 0, 0, 0)"
-        },
-        "font":
-        {
-            "size": "30"
         },
         "images":
          {
@@ -127,77 +140,13 @@
             "selected_border": "rgba(0, 0, 0, 0)",
             "active_border": "rgba(0, 0, 0, 0)"
         },
-        "font":
-        {
-            "size": "30"
-        },
         "images":
          {
              "normal_image": {
-                 "path": "button_sprites/pause/Default.png"
+                 "path": "Prinbles_Asset_Robin (v 1.1) (9_5_2023)/png/Buttons/Square/SoundOff/Default.png"
              },
              "hovered_image": {
-                 "path": "button_sprites/pause/Hover.png"
-             }
-         }
-    },
-    "#backbutton": {
-        "colours": {
-            "normal_bg": "rgba(0, 0, 0, 0)",
-            "hovered_bg": "rgba(0, 0, 0, 0)",
-            "active_bg": "rgba(0, 0, 0, 0)",
-            "disabled_text": "rgba(0, 0, 0, 0)",
-            "hovered_text": "rgba(0, 0, 0, 0)",
-            "normal_text": "rgba(0, 0, 0, 0)",
-            "selected_text": "rgba(0, 0, 0, 0)",
-            "active_text": "rgba(0, 0, 0, 0)",
-            "normal_border": "rgba(0, 0, 0, 0)",
-            "hovered_border": "rgba(0, 0, 0, 0)",
-            "disabled_border": "rgba(0, 0, 0, 0)",
-            "selected_border": "rgba(0, 0, 0, 0)",
-            "active_border": "rgba(0, 0, 0, 0)"
-        },
-        "font":
-        {
-            "size": "30"
-        },
-        "images":
-         {
-             "normal_image": {
-                 "path": "button_sprites/back/Default.png"
-             },
-             "hovered_image": {
-                 "path": "button_sprites/back/Hover.png"
-             }
-         }
-    },
-    "#settingsbutton": {
-        "colours": {
-            "normal_bg": "rgba(0, 0, 0, 0)",
-            "hovered_bg": "rgba(0, 0, 0, 0)",
-            "active_bg": "rgba(0, 0, 0, 0)",
-            "disabled_text": "rgba(0, 0, 0, 0)",
-            "hovered_text": "rgba(0, 0, 0, 0)",
-            "normal_text": "rgba(0, 0, 0, 0)",
-            "selected_text": "rgba(0, 0, 0, 0)",
-            "active_text": "rgba(0, 0, 0, 0)",
-            "normal_border": "rgba(0, 0, 0, 0)",
-            "hovered_border": "rgba(0, 0, 0, 0)",
-            "disabled_border": "rgba(0, 0, 0, 0)",
-            "selected_border": "rgba(0, 0, 0, 0)",
-            "active_border": "rgba(0, 0, 0, 0)"
-        },
-        "font":
-        {
-            "size": "30"
-        },
-        "images":
-         {
-             "normal_image": {
-                 "path": "button_sprites/settings/Default.png"
-             },
-             "hovered_image": {
-                 "path": "button_sprites/settings/Hover.png"
+                 "path": "Prinbles_Asset_Robin (v 1.1) (9_5_2023)/png/Buttons/Square/SoundOff/Hover.png"
              }
          }
     },
@@ -209,12 +158,29 @@
         },
         "font":
         {
-            "name": "montserrat",
+            "name": "better-vcr",
             "size": "70",
             "regular_resource":
             {
                   "package": "Shreck-pygame-master",
-                  "resource": "Montserrat-Regular.ttf"
+                  "resource": "better-vcr-5.2.ttf"
+            }
+        }
+    },
+    "#blacklabel":
+    {
+        "colours":
+        {
+            "normal_text": "rgb(0, 0, 0)"
+        },
+        "font":
+        {
+            "name": "better-vcr",
+            "size": "70",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "better-vcr-5.2.ttf"
             }
         }
     },
