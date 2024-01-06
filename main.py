@@ -31,7 +31,7 @@ def start():
     # pygame.mixer.music.play() # Пока в разработке на 0 потом на 1 поставим
     background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
 
-    welcome_back = pygame_gui.elements.UILabel(
+    welcome_background = pygame_gui.elements.UILabel(
         relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 449, 149), (900, 100)),
         text="Welcome to Shreck",
         manager=manager,
@@ -113,6 +113,13 @@ def settings():
     background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
     common_button_size = (100, 100)
     MIDDLE_SCREEN_w = SCREEN_WIDTH // 2
+
+    info = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((239, 89), (801, 101)),
+        text=f"Settings",
+        manager=manager,
+        object_id="#blacklabel"
+    )
 
     info = pygame_gui.elements.UILabel(
         relative_rect=pygame.Rect((240, 90), (800, 100)),
@@ -253,6 +260,12 @@ def statistic(*stat_data):
     manager.get_theme().load_theme('theme_for_button.json')
     background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
 
+    info_back = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((239, 89), (801, 101)),
+        text=f"Statistic",
+        manager=manager,
+        object_id="#blacklabel"
+    )
     info = pygame_gui.elements.UILabel(
         relative_rect=pygame.Rect((240, 90), (800, 100)),
         text=f"Statistic",
