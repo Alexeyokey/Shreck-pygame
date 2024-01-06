@@ -29,10 +29,10 @@ def start():
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
     # pygame.mixer.music.play() # Пока в разработке на 0 потом на 1 поставим
-    background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
+    background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     welcome_background = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 449, 149), (900, 100)),
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 455, 145), (905, 105)),
         text="Welcome to Shreck",
         manager=manager,
         object_id="#blacklabel"
@@ -61,15 +61,15 @@ def start():
 
     statistic_btn = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 98, SCREEN_HEIGHT // 2 + 150), (196, 84)),
-        text='Statistic',
+        text='Stat',
         manager=manager,
-        object_id="#long_text"
+        object_id="#button"
     )
 
     back_button = pygame_gui.elements.UIButton(    # не трогай кнопки назад, они идут как плюс в карму
         relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 98, SCREEN_HEIGHT // 2 + 250),
                                   (196, 84)),
-        text='back',
+        text='Back',
         manager=manager,
         object_id="#button"
     )
@@ -110,12 +110,12 @@ def settings():
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
 
-    background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
+    background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
     common_button_size = (100, 100)
     MIDDLE_SCREEN_w = SCREEN_WIDTH // 2
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((239, 89), (801, 101)),
+        relative_rect=pygame.Rect((235, 85), (805, 105)),
         text=f"Settings",
         manager=manager,
         object_id="#blacklabel"
@@ -199,32 +199,109 @@ def settings():
         pygame.display.flip()
         pygame.display.update()
 
-
-def end(score):
+def pause():
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
-    background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
+    background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((240 - 50, 190), (900, 100)),
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 405, 85), (805, 105)),
+        text=f"Pause",
+        manager=manager,
+        object_id="#blacklabel"
+    )
+
+    info = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((SCREEN_WIDTH // 2 - 400, 90), (800, 100)),
+        text=f"Pause",
+        manager=manager,
+        object_id="#label"
+    )
+
+    contin = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, SCREEN_HEIGHT // 2), (400, 100)),
+        text='continue',
+        manager=manager,
+        object_id="#button"
+    )
+
+    retry = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, SCREEN_HEIGHT // 2 + 100), (400, 100)),
+        text='Retry',
+        manager=manager,
+        object_id="#button"
+    )
+
+    back_to_menu = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((440, SCREEN_HEIGHT // 2 + 200), (400, 100)),
+        text='Back',
+        manager=manager,
+        object_id="#button"
+    )
+
+    clock = pygame.time.Clock()
+    running = True
+    pause_flag = True
+    while pause_flag:
+        time_delta = clock.tick(60) / 1000.0
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+                    pause_flag = False
+                    start()
+            elif event.type == QUIT:
+                pause_flag = False
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == retry:
+                        running = False
+                        pause_flag = False
+                        main()
+                    elif event.ui_element == back_to_menu:
+                        running = False
+                        pause_flag = False
+                        start()
+                    elif event.ui_element == contin:
+                        pause_flag = False
+            manager.process_events(event)
+        screen.blit(background_image, [0, 0])
+        manager.draw_ui(screen)
+        manager.update(time_delta)
+        pygame.display.flip()
+        pygame.display.update()
+    return running
+
+
+def end(score, game_over):
+    global manager
+    manager.clear_and_reset()
+    manager.get_theme().load_theme('theme_for_button.json')
+    if game_over == "victory":
+        back_screen = load_image('backs/additional_map.png')
+    else:
+        back_screen = load_image('backs/defeat_screen.jpg')
+
+    info = pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect((190, SCREEN_HEIGHT // 2 - 250), (900, 100)),
         text=f"Total score: {score}",
         manager=manager,
         object_id="#label"
     )
 
     retry = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 340), (400, 100)),
-        text='RETRY',
+        relative_rect=pygame.Rect((440, SCREEN_HEIGHT // 2 + 200), (400, 50)),
+        text='Retry',
         manager=manager,
-        object_id="#button"
+        object_id="#transparent_button"
     )
 
     back_to_menu = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 490), (400, 100)),
-        text='Back to menu',
+        relative_rect=pygame.Rect((440, SCREEN_HEIGHT // 2 + 250), (400, 50)),
+        text='Back',
         manager=manager,
-        object_id="#long_text"
+        object_id="#transparent_button"
     )
 
     clock = pygame.time.Clock()
@@ -247,7 +324,7 @@ def end(score):
                         finish = False
                         start()
             manager.process_events(event)
-        screen.blit(background_image, [0, 0])
+        screen.blit(back_screen, [0, 0])
         manager.draw_ui(screen)
         manager.update(time_delta)
         pygame.display.flip()
@@ -258,7 +335,7 @@ def statistic(*stat_data):
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
-    background_image = pygame.transform.scale(pygame.image.load("sprites/background.jpg").convert(), (1280, 720))
+    background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     info_back = pygame_gui.elements.UILabel(
         relative_rect=pygame.Rect((239, 89), (801, 101)),
@@ -349,18 +426,12 @@ def statistic(*stat_data):
         manager=manager,
         object_id="#little_label"
     )
-    retry = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 340), (400, 100)),
-        text='RETRY',
-        manager=manager,
-        object_id="#button"
-    )
 
     back_to_menu = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((440, 490), (400, 100)),
-        text='Back to menu',
+        relative_rect=pygame.Rect((440, SCREEN_HEIGHT//2 + 250), (400, 100)),
+        text='Back',
         manager=manager,
-        object_id="#long_text"
+        object_id="#button"
     )
     clock = pygame.time.Clock()
     finish = True
@@ -375,10 +446,7 @@ def statistic(*stat_data):
                 finish = False
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == retry:
-                        finish = False
-                        main()
-                    elif event.ui_element == back_to_menu:
+                    if event.ui_element == back_to_menu:
                         finish = False
                         start()
             manager.process_events(event)
@@ -398,23 +466,23 @@ def main():
             self.rect.topleft = coords
             self.sprite = Sprite(8)
             self.death_flag = False
-            wait_right = Animation.from_path(f'sprites/{knight_name}_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+            wait_right = Animation.from_path(f'data/sprites/{knight_name}_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
                                              scale=2.5)
-            wait_left = Animation.from_path(f'sprites/{knight_name}_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+            wait_left = Animation.from_path(f'data/sprites/{knight_name}_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
                                             scale=2.5)
-            run_right = Animation.from_path(f'sprites/{knight_name}_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+            run_right = Animation.from_path(f'data/sprites/{knight_name}_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
                                             scale=2.5)
-            run_left = Animation.from_path(f'sprites/{knight_name}_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+            run_left = Animation.from_path(f'data/sprites/{knight_name}_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
                                            scale=2.5)
-            damage_right = Animation.from_path(f'sprites/{knight_name}_damage.png', (4, 1), 3, reverse_x=False, colorkey=(0, 0, 0),
+            damage_right = Animation.from_path(f'data/sprites/{knight_name}_damage.png', (4, 1), 3, reverse_x=False, colorkey=(0, 0, 0),
                                            scale=2.5)
-            damage_left = Animation.from_path(f'sprites/{knight_name}_damage.png', (4, 1), 3, reverse_x=True,
+            damage_left = Animation.from_path(f'data/sprites/{knight_name}_damage.png', (4, 1), 3, reverse_x=True,
                                               colorkey=(0, 0, 0),
                                               scale=2.5)
-            death_right = Animation.from_path(f'sprites/{knight_name}_death.png', (4, 1), 4, reverse_x=False,
+            death_right = Animation.from_path(f'data/sprites/{knight_name}_death.png', (4, 1), 4, reverse_x=False,
                                                colorkey=(0, 0, 0),
                                                scale=2.5)
-            death_left = Animation.from_path(f'sprites/{knight_name}_death.png', (4, 1), 4, reverse_x=True,
+            death_left = Animation.from_path(f'data/sprites/{knight_name}_death.png', (4, 1), 4, reverse_x=True,
                                               colorkey=(0, 0, 0),
                                               scale=2.5)
             self.sprite.add_animation({"wait_r": wait_right, "wait_l": wait_left,
@@ -591,13 +659,13 @@ def main():
             self.sprite = Sprite(8)
             self.particle_time_start = None
             self.movement = pygame.Vector2((0, 0))
-            wait_r = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+            wait_r = Animation.from_path('data/sprites/shreck_wait.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
                                          scale=2)
-            wait_l = Animation.from_path('sprites/shreck_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+            wait_l = Animation.from_path('data/sprites/shreck_wait.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
                                          scale=2)
-            run_r = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
+            run_r = Animation.from_path('data/sprites/shreck_run.png', (4, 1), 4, reverse_x=False, colorkey=(0, 0, 0),
                                         scale=2)
-            run_l = Animation.from_path('sprites/shreck_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
+            run_l = Animation.from_path('data/sprites/shreck_run.png', (4, 1), 4, reverse_x=True, colorkey=(0, 0, 0),
                                         scale=2)
             self.sprite.add_animation({"wait_r": wait_r, "wait_l": wait_l,
                                        "run_r": run_r, "run_l": run_l}, loop=True)
@@ -729,10 +797,10 @@ def main():
             self.sprite = Sprite(4)
             self.direction = 'right'
             self.state = 'idle'
-            idle_left = Animation.from_path('sprites/sword.png', reverse_x=True, scale=2)
-            idle_right = Animation.from_path('sprites/sword.png', reverse_x=False, scale=2)
-            attack_right = Animation.from_path('sprites/attacking_sword.png', (4, 1), 4, reverse_x=False, scale=2)
-            attack_left = Animation.from_path('sprites/attacking_sword_left.png', (4, 1), 4, reverse_x=False, scale=2, reverse_animation=True)
+            idle_left = Animation.from_path('data/sprites/sword.png', reverse_x=True, scale=2)
+            idle_right = Animation.from_path('data/sprites/sword.png', reverse_x=False, scale=2)
+            attack_right = Animation.from_path('data/sprites/attacking_sword.png', (4, 1), 4, reverse_x=False, scale=2)
+            attack_left = Animation.from_path('data/sprites/attacking_sword_left.png', (4, 1), 4, reverse_x=False, scale=2, reverse_animation=True)
             self.sprite.add_animation({"idle_left": idle_left, "idle_right": idle_right}, loop=True, fps_override=1)
             self.sprite.add_animation({"attack_right": attack_right, "attack_left": attack_left}, inevitable=True)
             self.sprite.add_callback('attack_right', self.change_to_idle)
@@ -802,9 +870,9 @@ def main():
             super().__init__(image, entity, target, shot_delay, attacking_group, *group)
             self.sprite = Sprite(4)
             self.arrow_speed = arrow_speed
-            self.arrow_image = load_image("arrow.png", (255, 255, 255), (30, 10))
-            idle = Animation.from_path('sprites/bow.png', (4, 1), 1, reverse_x=False, scale=2.5)
-            attack = Animation.from_path('sprites/bow.png', (4, 1), 4, reverse_x=False, scale=2.5)
+            self.arrow_image = load_image("sprites/arrow.png", (255, 255, 255), (30, 10))
+            idle = Animation.from_path('data/sprites/bow.png', (4, 1), 1, reverse_x=False, scale=2.5)
+            attack = Animation.from_path('data/sprites/bow.png', (4, 1), 4, reverse_x=False, scale=2.5)
             self.sprite.add_animation({"idle": idle}, fps_override=1)
             self.sprite.add_animation({"attack": attack})
             self.sprite.start_animation('idle')
@@ -920,7 +988,6 @@ def main():
         def get_surf(self):
             return self.surf
 
-    running = True
     tmx_main_map = load_pygame('map/mymap.tmx')
     map = Map(tmx_main_map)
     collide_objects = pygame.sprite.Group()
@@ -932,7 +999,7 @@ def main():
                     general_objects.add(layer[row][col])
                     if layer[row][col].get_collision():
                         collide_objects.add(layer[row][col])
-    back_image = load_image('additional_map.png')
+    back_image = load_image('backs/additional_map.png')
     camera_group = CameraGroup()
     enemies = pygame.sprite.Group()
     particle_group = pygame.sprite.Group()
@@ -943,7 +1010,7 @@ def main():
     timer = pygame.time.get_ticks()
     game_over = None
     levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
-    screen_messages = []
+    screen_message = None
     score = 0
     cur_level_counter = 0
     previous_time = pygame.time.get_ticks()
@@ -956,7 +1023,7 @@ def main():
     all_kills = int(str_with_stat[2])
     all_deaths = int(str_with_stat[3])
     all_score = int(str_with_stat[4])
-
+    running = True
     while running:
         clock.tick(60)
         dt = (pygame.time.get_ticks() - previous_time) / 1000
@@ -967,6 +1034,9 @@ def main():
                 player_movement_registered = True
                 if event.key == K_ESCAPE:
                     player_movement_registered = False
+                    respond = pause()
+                    if not respond:
+                        running = False
                 elif event.key == K_r:
                     if not player.bow:
                         if player.sword:
@@ -996,13 +1066,11 @@ def main():
         if not game_over:
             if not enemies:
                 cur_level_counter += 1
-                score_for_file = max(int(open('score.txt', 'r').readlines()[0]), cur_level_counter)
-                open('score.txt', 'w').write(str(score_for_file - 1))
-                wave = pygame.font.Font(None, 144).render(f'wave {cur_level_counter}', 1, (255, 255, 255))
-                wave_2 = pygame.font.Font(None, 150).render(f'wave {cur_level_counter}', 1, (0, 0, 0))
-                pos = screen.get_size()[0] // 2 - wave.get_width() // 2, screen.get_size()[1] // 2 - wave.get_height() * 2.5
-                pos_2 = screen.get_size()[0] // 2 - wave_2.get_width() // 2, screen.get_size()[1] // 2 - wave_2.get_height() * 2.5
-                screen_messages.append(((wave_2, pos_2, pygame.time.get_ticks(), 5000), (wave, pos, pygame.time.get_ticks(), 5000)))
+                wave = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 82).render(f'wave {cur_level_counter}', 1, (255, 255, 255))
+                wave_2 = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 86).render(f'wave {cur_level_counter}', 1, (0, 0, 0))
+                pos = SCREEN_WIDTH // 2 - wave.get_width() // 2, SCREEN_HEIGHT // 2 - wave.get_height() * 2.5
+                pos_2 = SCREEN_WIDTH // 2 - wave_2.get_width() // 2, SCREEN_HEIGHT // 2 - wave_2.get_height() * 2.5
+                screen_message = ((wave_2, pos_2, pygame.time.get_ticks(), 2000), (wave, pos, pygame.time.get_ticks(), 2000))
                 cur_level = next(levels, "end")
                 timer = pygame.time.get_ticks()
                 if cur_level == "end":
@@ -1066,41 +1134,20 @@ def main():
                             i.kill()
                     if player.hp <= 0:
                         player.kill()
-                        game_over = "Game over"
+                        game_over = "defeat"
                         str_with_stat = open('stat.txt', 'r').readline().split()
                         all_deaths = int(str_with_stat[3]) + 1
                         all_score = int(str_with_stat[4]) + score
                         open('stat.txt', 'w').write(f"{bow_kills} {sword_kills} {all_kills} {all_deaths} {score}")
-                    for message_box in screen_messages:
-                        for message in message_box:
+                    if screen_message:
+                        for message in screen_message:
                             screen.blit(message[0], message[1])
                             if pygame.time.get_ticks() - message[2] >= message[3]:
-                                screen_messages.remove(message_box)
+                                screen_message = None
                                 break
         else:
-            main_font = pygame.font.Font(None, 72)
-            title = pygame.font.Font(None, 144).render(str(game_over), 1, (255, 255, 255))
-            total_score = main_font.render(f'Total score:{score}', 1, (255, 255, 255))
-            retry = (main_font.render('Retry', 1, (255, 255, 255)), (200, 100), "retry")
-            back_to_menu = (main_font.render('Back to menu', 1, (255, 255, 255)), (400, 100), "back")
-            buttons = {}
-            for index, i in enumerate([retry, back_to_menu]):
-                button = Button()
-                button_size = (400, 100)
-                button.create_button(screen, (255, 255, 255), SCREEN_WIDTH // 2 - button_size[0] // 2,
-                                     SCREEN_HEIGHT // 2 + index * 150, button_size, i[0], 1)
-                button.draw_button()
-                buttons[i[2]] = button
-            screen.blit(title, (
-                SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 2 - title.get_height() // 2 - 200))
-            screen.blit(total_score, (
-                SCREEN_WIDTH // 2 - total_score.get_width() // 2 , SCREEN_HEIGHT // 2 + total_score.get_height() // 2 - 100))
-            if buttons['retry'].pressed(pygame.mouse.get_pos()):
-                running = False
-                main()
-            elif buttons['back'].pressed(pygame.mouse.get_pos()):
-                running = False
-                start()
+            running = False
+            end(score, game_over)
         pygame.display.flip()
 
 

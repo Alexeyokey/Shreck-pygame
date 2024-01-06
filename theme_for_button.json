@@ -5,10 +5,10 @@
             "hovered_bg": "rgba(0, 0, 0, 0)",
             "active_bg": "rgba(0, 0, 0, 0)",
             "disabled_text": "rgba(0, 0, 0, 0)",
-            "hovered_text": "rgba(255, 255, 255, 255)",
-            "normal_text": "rgba(255, 255, 255, 255)",
-            "selected_text": "rgba(0, 0, 0, 0)",
-            "active_text": "rgba(255, 255, 255, 255)",
+            "hovered_text": "#A4925F",
+            "normal_text": "#A4925F",
+            "selected_text": "#A4925F",
+            "active_text": "#A4925F",
             "normal_border": "rgba(0, 0, 0, 0)",
             "hovered_border": "rgba(0, 0, 0, 0)",
             "disabled_border": "rgba(0, 0, 0, 0)",
@@ -17,33 +17,33 @@
         },
         "font":
         {
-            "name": "montserrat",
+            "name": "better-vcr",
             "size": "28",
             "regular_resource":
             {
-                  "package": "Shreck-pygame-master",
+                  "package": "Shreck-pygame-master.data.fonts",
                   "resource": "better-vcr-5.2.ttf"
             }
         },
         "images":
          {
              "normal_image": {
-                 "path": "button_sprites/Button/Rect/Fill/Default.png"
+                 "path": "data/button_sprites/Button/Default.png"
              },
              "hovered_image": {
-                 "path": "button_sprites/Button/Rect/Fill/Hover.png"
+                 "path": "data/button_sprites/Button/Hover.png"
              }
          }
     },
-    "#long_text": {
+    "#transparent_button": {
         "colours": {
             "normal_bg": "rgba(0, 0, 0, 0)",
             "hovered_bg": "rgba(0, 0, 0, 0)",
             "active_bg": "rgba(0, 0, 0, 0)",
             "disabled_text": "rgba(0, 0, 0, 0)",
-            "hovered_text": "rgba(255, 255, 255, 255)",
+            "hovered_text": "rgba(255, 255, 255, 155)",
             "normal_text": "rgba(255, 255, 255, 255)",
-            "selected_text": "rgba(0, 0, 0, 0)",
+            "selected_text": "rgba(255, 255, 255, 255)",
             "active_text": "rgba(255, 255, 255, 255)",
             "normal_border": "rgba(0, 0, 0, 0)",
             "hovered_border": "rgba(0, 0, 0, 0)",
@@ -53,23 +53,14 @@
         },
         "font":
         {
-            "name": "montserrat",
-            "size": "20",
+            "name": "better-vcr",
+            "size": "28",
             "regular_resource":
             {
-                  "package": "Shreck-pygame-master",
+                  "package": "Shreck-pygame-master.data.fonts",
                   "resource": "better-vcr-5.2.ttf"
             }
-        },
-        "images":
-         {
-             "normal_image": {
-                 "path": "button_sprites/Button/Rect/Fill/Default.png"
-             },
-             "hovered_image": {
-                 "path": "button_sprites/Button/Rect/Fill/Hover.png"
-             }
-         }
+        }
     },
     "#rightarrowbutton": {
         "colours": {
@@ -90,10 +81,10 @@
         "images":
          {
              "normal_image": {
-                 "path": "button_sprites/right_arrow/Default.png"
+                 "path": "data/button_sprites/right_arrow/Default.png"
              },
              "hovered_image": {
-                 "path": "button_sprites/right_arrow/Hover.png"
+                 "path": "data/button_sprites/right_arrow/Hover.png"
              }
          }
     },
@@ -116,10 +107,10 @@
         "images":
          {
              "normal_image": {
-                 "path": "button_sprites/left_arrow/Default.png"
+                 "path": "data/button_sprites/left_arrow/Default.png"
              },
              "hovered_image": {
-                 "path": "button_sprites/left_arrow/Hover.png"
+                 "path": "data/button_sprites/left_arrow/Hover.png"
              }
          }
     },
@@ -143,10 +134,10 @@
         "images":
          {
              "normal_image": {
-                 "path": "Prinbles_Asset_Robin (v 1.1) (9_5_2023)/png/Buttons/Square/SoundOff/Default.png"
+                 "path": "data/button_sprites/SoundOff/Default.png"
              },
              "hovered_image": {
-                 "path": "Prinbles_Asset_Robin (v 1.1) (9_5_2023)/png/Buttons/Square/SoundOff/Hover.png"
+                 "path": "data/button_sprites/SoundOff/Hover.png"
              }
          }
     },
@@ -192,12 +183,12 @@
         },
         "font":
         {
-            "name": "montserrat",
+            "name": "better-vcr",
             "size": "50",
             "regular_resource":
             {
                   "package": "Shreck-pygame-master",
-                  "resource": "Montserrat-Regular.ttf"
+                  "resource": "better-vcr-5.2.ttf"
             }
         }
     },

@@ -11,7 +11,7 @@ def rot_center(image, angle, x, y):
     return rotated_image, new_rect
 
 def load_image(name, colorkey=None, scale=None, flip=None):
-    fullname = os.path.join('sprites', name)
+    fullname = os.path.join('data', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
