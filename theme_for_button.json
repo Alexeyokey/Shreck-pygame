@@ -114,8 +114,7 @@
              }
          }
     },
-
-    "#pausebutton": {
+    "#musicbutton": {
         "colours": {
             "normal_bg": "rgba(0, 0, 0, 0)",
             "hovered_bg": "rgba(0, 0, 0, 0)",
@@ -141,6 +140,7 @@
              }
          }
     },
+
     "#label":
     {
         "colours":

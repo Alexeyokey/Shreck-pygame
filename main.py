@@ -11,6 +11,7 @@ from sound_effects_settings import *
 from pytmx.util_pygame import load_pygame
 from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
+from pygame_gui.core import ObjectID
 import pygame_gui
 
 pygame.init()
@@ -28,7 +29,7 @@ def start():
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
-    # pygame.mixer.music.play() # Пока в разработке на 0 потом на 1 поставим
+    pygame.mixer.music.play() # Пока в разработке на 0 потом на 1 поставим
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     welcome_background = pygame_gui.elements.UILabel(
@@ -128,7 +129,7 @@ def settings():
         object_id="#label"
     )
 
-    
+
     sound_lbl = pygame_gui.elements.UILabel(
         relative_rect=pygame.Rect((240, SCREEN_HEIGHT // 2 - 100), (800, 100)),
         text="Sound",
@@ -144,13 +145,6 @@ def settings():
         object_id="#leftarrowbutton"
     )
 
-    mute_volume = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - common_button_size[0] // 2, SCREEN_HEIGHT // 2), (100, 100)),
-        text='',
-        manager=manager,
-        object_id="#pausebutton"
-    )
-
     add_volume = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((MIDDLE_SCREEN_w + common_button_size[0] // 2, SCREEN_HEIGHT // 2),
                                   common_button_size),
@@ -163,8 +157,14 @@ def settings():
         text='Back',
         manager=manager,
         object_id="#button"
-    )
 
+    )
+    mute_or_unmute_volume = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((MIDDLE_SCREEN_w - common_button_size[0] // 2, SCREEN_HEIGHT // 2), (100, 100)),
+        text='',
+        manager=manager,
+        object_id=ObjectID(object_id='#musicbutton')
+    )
     clock = pygame.time.Clock()
     setting = True
     while setting:
@@ -182,7 +182,8 @@ def settings():
                         if event.ui_element == sub_volume:
                             pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() - 0.1)
                             vol = pygame.mixer.music.get_volume()
-                        elif event.ui_element == mute_volume:
+                        elif event.ui_element == mute_or_unmute_volume:
+                            change = True
                             if pygame.mixer.music.get_volume() != 0:
                                 pygame.mixer.music.set_volume(0)
                             else:
@@ -199,6 +200,7 @@ def settings():
         manager.update(time_delta)
         pygame.display.flip()
         pygame.display.update()
+
 
 def pause():
     global manager
