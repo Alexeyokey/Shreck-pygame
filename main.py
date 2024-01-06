@@ -128,6 +128,7 @@ def settings():
         object_id="#label"
     )
 
+    
     sound_lbl = pygame_gui.elements.UILabel(
         relative_rect=pygame.Rect((240, SCREEN_HEIGHT // 2 - 100), (800, 100)),
         text="Sound",
