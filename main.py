@@ -183,7 +183,6 @@ def settings():
                             pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() - 0.1)
                             vol = pygame.mixer.music.get_volume()
                         elif event.ui_element == mute_or_unmute_volume:
-                            change = True
                             if pygame.mixer.music.get_volume() != 0:
                                 pygame.mixer.music.set_volume(0)
                             else:
@@ -281,8 +280,10 @@ def end(score, game_over):
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
+    additional_screen = None
     if game_over == "victory":
         back_screen = load_image('backs/additional_map.png')
+        # additional_screen = load_image('backs/victory_screen.jpg', colorkey=(0, 0, 0))
     else:
         back_screen = load_image('backs/defeat_screen.jpg')
 
@@ -328,6 +329,8 @@ def end(score, game_over):
                         start()
             manager.process_events(event)
         screen.blit(back_screen, [0, 0])
+        if additional_screen:
+            screen.blit(additional_screen, (0, 0))
         manager.draw_ui(screen)
         manager.update(time_delta)
         pygame.display.flip()
@@ -1012,7 +1015,7 @@ def main():
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
     game_over = None
-    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
+    levels = iter([level_1()])
     screen_message = None
     score = 0
     cur_level_counter = 0

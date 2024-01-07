@@ -33,7 +33,12 @@
              "hovered_image": {
                  "path": "data/button_sprites/Button/Hover.png"
              }
-         }
+         },
+        "misc":
+        {
+            "border_width": "0",
+            "shadow_width": "0"
+        }
     },
     "#transparent_button": {
         "colours": {
@@ -60,6 +65,11 @@
                   "package": "Shreck-pygame-master.data.fonts",
                   "resource": "better-vcr-5.2.ttf"
             }
+        },
+        "misc":
+        {
+            "border_width": "0",
+            "shadow_width": "0"
         }
     },
     "#rightarrowbutton": {
