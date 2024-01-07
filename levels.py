@@ -8,7 +8,7 @@ def level_1():
     enemy_respawn = 100
     shot_delay = 2.5
     enemies = []
-    enemies.append(("swordsman", speed, hp, (player_pos[0], player_pos[1] + 200), enemy_shape, "sword", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0], player_pos[1] + 300), enemy_shape, "sword", shot_delay))
     return enemies, enemy_respawn, player_pos
 
 

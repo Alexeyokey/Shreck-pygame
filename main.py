@@ -281,9 +281,14 @@ def end(score, game_over):
     manager.clear_and_reset()
     manager.get_theme().load_theme('theme_for_button.json')
     additional_screen = None
+    sprite = None
     if game_over == "victory":
         back_screen = load_image('backs/additional_map.png')
-        # additional_screen = load_image('backs/victory_screen.jpg', colorkey=(0, 0, 0))
+        sprite = Sprite()
+        run_l = Animation.from_path('data/sprites/wolk_spritesheet.png', (7, 1), 5, reverse_x=False)
+        sprite.add_animation({"run_l": run_l}, loop=True)
+        sprite.start_animation("run_l")
+        coords = [SCREEN_WIDTH, SCREEN_HEIGHT // 2 - sprite.get_image()[0].get_width() // 2 + 40]
     else:
         back_screen = load_image('backs/defeat_screen.jpg')
 
@@ -329,8 +334,10 @@ def end(score, game_over):
                         start()
             manager.process_events(event)
         screen.blit(back_screen, [0, 0])
-        if additional_screen:
-            screen.blit(additional_screen, (0, 0))
+        if sprite:
+            sprite.update(time_delta)
+            sprite.draw(screen, coords)
+            coords[0] -= time_delta * 300
         manager.draw_ui(screen)
         manager.update(time_delta)
         pygame.display.flip()
@@ -1015,7 +1022,7 @@ def main():
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
     game_over = None
-    levels = iter([level_1()])
+    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
     screen_message = None
     score = 0
     cur_level_counter = 0
@@ -1073,10 +1080,19 @@ def main():
             if not enemies:
                 cur_level_counter += 1
                 wave = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 82).render(f'wave {cur_level_counter}', 1, (255, 255, 255))
-                wave_2 = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 86).render(f'wave {cur_level_counter}', 1, (0, 0, 0))
-                pos = SCREEN_WIDTH // 2 - wave.get_width() // 2, SCREEN_HEIGHT // 2 - wave.get_height() * 2.5
-                pos_2 = SCREEN_WIDTH // 2 - wave_2.get_width() // 2, SCREEN_HEIGHT // 2 - wave_2.get_height() * 2.5
-                screen_message = ((wave_2, pos_2, pygame.time.get_ticks(), 2000), (wave, pos, pygame.time.get_ticks(), 2000))
+                wave_2 = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 84).render(f'wave {cur_level_counter}', 1, (0, 0, 0))
+                pos = SCREEN_WIDTH // 2 - wave.get_width() // 2, SCREEN_HEIGHT // 2 - wave.get_height() * 4
+                pos_2 = SCREEN_WIDTH // 2 - wave_2.get_width() // 2, SCREEN_HEIGHT // 2 - wave_2.get_height() * 4
+                screen_message = [(wave_2, pos_2, pygame.time.get_ticks(), 2000), (wave, pos, pygame.time.get_ticks(), 2000)]
+                if cur_level_counter == 1:
+                    MEAN_POS = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                    tutorial = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 31).render(f'to take bow press R', 1,
+                                                                                        (255, 255, 255))
+                    tutorial_2 = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 31).render(f'to take sword press T',
+                                                                                          1, (255, 255, 255))
+                    tutorial_3 = pygame.font.Font("data/fonts/better-vcr-5.2.ttf", 31).render(f'to attack left click',
+                                                                                              1, (255, 255, 255))
+                    screen_message=[(tutorial, (MEAN_POS[0] - 500, MEAN_POS[1] - 300),  pygame.time.get_ticks(),  5000), (tutorial_2, (MEAN_POS[0] + 50, MEAN_POS[1] - 300),  pygame.time.get_ticks(),  5000), (tutorial_3, (MEAN_POS[0] - tutorial_3.get_width() // 2, MEAN_POS[1] - 200),  pygame.time.get_ticks(), 5000)]
                 cur_level = next(levels, "end")
                 timer = pygame.time.get_ticks()
                 if cur_level == "end":
@@ -1107,6 +1123,12 @@ def main():
                                                camera_group, enemies)
             if not game_over:
                 camera_group.custom_draw(screen, player)
+                if screen_message:
+                    for message in screen_message:
+                        screen.blit(message[0], message[1])
+                        if pygame.time.get_ticks() - message[2] >= message[3]:
+                            screen_message = None
+                            break
                 if player_movement_registered or first_update:
                     first_update = False
                     camera_group.update(dt)
@@ -1145,12 +1167,6 @@ def main():
                         all_deaths = int(str_with_stat[3]) + 1
                         all_score = int(str_with_stat[4]) + score
                         open('stat.txt', 'w').write(f"{bow_kills} {sword_kills} {all_kills} {all_deaths} {score}")
-                    if screen_message:
-                        for message in screen_message:
-                            screen.blit(message[0], message[1])
-                            if pygame.time.get_ticks() - message[2] >= message[3]:
-                                screen_message = None
-                                break
         else:
             running = False
             end(score, game_over)
