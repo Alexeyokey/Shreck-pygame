@@ -952,7 +952,11 @@ def main():
             for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 offset_pos = sprite.get_draw_rect().topleft - self.offset
                 sprite.draw(self.display_surface, offset_pos)
-                # real_pos = sprite.get_rect().topleft - self.offset
+                real_pos = sprite.get_rect().topleft - self.offset
+                screen_2 = screen.copy()
+                screen_2.set_alpha(128)
+                pygame.draw.ellipse(screen_2, (0, 0, 0), (real_pos[0], real_pos[1] + sprite.rect.h * 0.9, sprite.rect.w, sprite.rect.h // 5), 0)
+                screen.blit(screen_2, (0, 0))
                 # coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
                 # pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
