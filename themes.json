@@ -96,7 +96,13 @@
              "hovered_image": {
                  "path": "data/button_sprites/right_arrow/Hover.png"
              }
-         }
+         },
+        "font":
+        {
+            "name": "fira-code",
+            "size": "70",
+            "regular_path": "data/fonts/FiraCode-Regular.ttf"
+        }
     },
     "#leftarrowbutton": {
         "colours": {
@@ -122,7 +128,17 @@
              "hovered_image": {
                  "path": "data/button_sprites/left_arrow/Hover.png"
              }
-         }
+         },
+        "font":
+        {
+            "name": "better-vcr",
+            "size": "70",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "better-vcr-5.2.ttf"
+            }
+        }
     },
     "#musicbutton": {
         "colours": {
@@ -148,7 +164,17 @@
              "hovered_image": {
                  "path": "data/button_sprites/SoundOff/Hover.png"
              }
-         }
+         },
+        "font":
+        {
+            "name": "better-vcr",
+            "size": "70",
+            "regular_resource":
+            {
+                  "package": "Shreck-pygame-master",
+                  "resource": "better-vcr-5.2.ttf"
+            }
+        }
     },
 
     "#label":
@@ -200,112 +226,6 @@
                   "package": "Shreck-pygame-master",
                   "resource": "better-vcr-5.2.ttf"
             }
-        }
-    },
-    "#progressbar":
-    {
-        "colours":
-         {
-             "normal_text": "#c5cbd8",
-             "normal_border": "#DDDDDD",
-             "unfilled_bar": "#CCCCCC",
-             "filled_bar": "rgb(0, 0, 0)"
-         },
-        "misc":
-        {
-            "shape": "rounded_rectangle",
-            "shape_corner_radius": "14",
-            "border_width": "0",
-            "shadow_width": "0"
-        }
-    },
-    "#bg_panel":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(255, 255, 255, 15)"
-        },
-        "misc":
-        {
-            "border_width": 0,
-            "shape": "rounded_rectangle",
-            "shape_corner_radius": "18"
-        }
-    },
-    "#real":
-    {
-        "colours":
-        {
-            "dark_bg": "rgb(100, 100, 255)"
-        },
-        "misc":
-        {
-            "border_width": 0,
-            "shape": "rounded_rectangle",
-            "shape_corner_radius": "18"
-        }
-    },
-    "#1":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(74, 58, 45, 50)"
-        }
-    },
-    "#2":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(82, 73, 78, 50)"
-        }
-    },
-    "#3":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(98, 87, 85, 50)"
-        }
-    },
-    "#4":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(93, 83, 99, 50)"
-        }
-    },
-    "#5":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(87, 85, 106, 50)"
-        }
-    },
-    "#6":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(100, 78, 101, 50)"
-        }
-    },
-    "#7":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(111, 75, 103, 50)"
-        }
-    },
-    "#8":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(115, 69, 115, 50)"
-        }
-    },
-    "#0":
-    {
-        "colours":
-        {
-            "dark_bg": "rgba(255, 255, 255, 0)"
         }
     }
 }

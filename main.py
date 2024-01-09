@@ -9,18 +9,16 @@ from sprite_tools import Sprite, Animation
 from levels import *
 from sound_effects_settings import *
 from pytmx.util_pygame import load_pygame
-from gui_elements import Button
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
 from pygame_gui.core import ObjectID
 import pygame_gui
 
 pygame.init()
-
 info = pygame.display.Info()
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'theme_for_button.json')
+manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'themes.json')
 pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
 vol = 1
 
@@ -28,7 +26,7 @@ vol = 1
 def start():
     global manager
     manager.clear_and_reset()
-    manager.get_theme().load_theme('theme_for_button.json')
+    manager.get_theme().load_theme('themes.json')
     pygame.mixer.music.play() # Пока в разработке на 0 потом на 1 поставим
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
@@ -109,7 +107,7 @@ def start():
 def settings():
     global manager, vol, sensitivity_multiplier
     manager.clear_and_reset()
-    manager.get_theme().load_theme('theme_for_button.json')
+    manager.get_theme().load_theme('themes.json')
 
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
     common_button_size = (100, 100)
@@ -204,7 +202,7 @@ def settings():
 def pause():
     global manager
     manager.clear_and_reset()
-    manager.get_theme().load_theme('theme_for_button.json')
+    manager.get_theme().load_theme('themes.json')
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     info = pygame_gui.elements.UILabel(
@@ -279,7 +277,7 @@ def pause():
 def end(score, game_over):
     global manager
     manager.clear_and_reset()
-    manager.get_theme().load_theme('theme_for_button.json')
+    manager.get_theme().load_theme('themes.json')
     additional_screen = None
     sprite = None
     if game_over == "victory":
@@ -347,7 +345,7 @@ def end(score, game_over):
 def statistic(*stat_data):
     global manager
     manager.clear_and_reset()
-    manager.get_theme().load_theme('theme_for_button.json')
+    manager.get_theme().load_theme('themes.json')
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     info_back = pygame_gui.elements.UILabel(
@@ -469,12 +467,11 @@ def statistic(*stat_data):
         pygame.display.flip()
         pygame.display.update()
 
+
 def main():
     class Enemy(Entity):
         def __init__(self, speed, hp, coords, image_shape, knight_name, group_to_collide, *group):
             super().__init__(speed, hp, (coords[0], coords[1], image_shape[0], image_shape[1]), image_shape, group_to_collide, *group)
-            self.surf = pygame.Surface(image_shape)
-            self.surf.set_colorkey((0, 0, 0))
             self.rect = pygame.Rect((coords[0], coords[1], image_shape[0], image_shape[1]))
             self.rect.topleft = coords
             self.sprite = Sprite(8)
@@ -555,13 +552,12 @@ def main():
                 bow_shoot.stop()
                 bow_hit.play()
 
-
         def check_death_and_kill(self):
             if self.death_flag:
                 self.cur_state = 'death'
 
         def get_draw_rect(self):
-            return pygame.Rect(self.rect.x - 20, self.rect.y - 30, self.rect.w, self.rect.h)
+            return pygame.Rect(self.rect.x - 22.5, self.rect.y - 30, self.rect.w, self.rect.h)
 
     class SwordEnemy(Enemy):
         def __init__(self, speed, hp, coords, image_shape, group_to_collide, *group):
@@ -648,7 +644,7 @@ def main():
                 for i in collisions["data"]:
                     if i[0] == player.rect:
                         if self.can_attack:
-                            player.additional_force = self.velocity * 30
+                            player.additional_force = self.velocity * 25
                             ram_sound.play()
                             player.get_hit(0, 50, "hands")
                             self.velocity = pygame.Vector2(0, 0)
@@ -951,12 +947,13 @@ def main():
                 partickle.draw(self.display_surface, offset_pos)
             for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 offset_pos = sprite.get_draw_rect().topleft - self.offset
-                sprite.draw(self.display_surface, offset_pos)
-                real_pos = sprite.get_rect().topleft - self.offset
                 screen_2 = screen.copy()
                 screen_2.set_alpha(128)
-                pygame.draw.ellipse(screen_2, (0, 0, 0), (real_pos[0], real_pos[1] + sprite.rect.h * 0.9, sprite.rect.w, sprite.rect.h // 5), 0)
+                real_pos = sprite.get_rect().topleft - self.offset
+                pygame.draw.ellipse(screen_2, (0, 0, 0), (
+                real_pos[0], real_pos[1] + sprite.rect.h * 0.85, sprite.rect.w, sprite.rect.h // 5), 0)
                 screen.blit(screen_2, (0, 0))
+                sprite.draw(self.display_surface, offset_pos)
                 # coords = (real_pos[0], real_pos[1], sprite.rect.w, sprite.rect.h)
                 # pygame.draw.rect(screen, (255, 255, 255), coords, 1)
 
