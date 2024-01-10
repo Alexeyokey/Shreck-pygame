@@ -19,11 +19,7 @@
         {
             "name": "better-vcr",
             "size": "28",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master.data.fonts",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         },
         "images":
          {
@@ -60,11 +56,7 @@
         {
             "name": "better-vcr",
             "size": "28",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master.data.fonts",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         },
         "misc":
         {
@@ -133,11 +125,7 @@
         {
             "name": "better-vcr",
             "size": "70",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         }
     },
     "#musicbutton": {
@@ -169,11 +157,7 @@
         {
             "name": "better-vcr",
             "size": "70",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         }
     },
 
@@ -187,11 +171,7 @@
         {
             "name": "better-vcr",
             "size": "70",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         }
     },
     "#blacklabel":
@@ -204,11 +184,7 @@
         {
             "name": "better-vcr",
             "size": "70",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         }
     },
     "#little_label":
@@ -221,11 +197,7 @@
         {
             "name": "better-vcr",
             "size": "50",
-            "regular_resource":
-            {
-                  "package": "Shreck-pygame-master",
-                  "resource": "better-vcr-5.2.ttf"
-            }
+            "regular_path": "data/fonts/better-vcr-5.2.ttf"
         }
     }
 }

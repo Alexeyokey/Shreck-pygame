@@ -2,7 +2,7 @@ import random
 import pygame
 import math
 from map import Map
-from entities import PhysicsObj, Entity
+from entities import Entity
 from particles import create_particles
 from scripts import get_angle_between, load_image, magnitude, scale_to
 from sprite_tools import Sprite, Animation
@@ -12,7 +12,6 @@ from pytmx.util_pygame import load_pygame
 from pygame.locals import (K_t, K_r, K_w, K_a, K_s, K_d, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_ESCAPE, K_q, KEYDOWN, QUIT)
 from pygame_gui.core import ObjectID
 import pygame_gui
-
 pygame.init()
 info = pygame.display.Info()
 SCREEN_WIDTH = 1280
@@ -27,7 +26,7 @@ def start():
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('themes.json')
-    pygame.mixer.music.play() # Пока в разработке на 0 потом на 1 поставим
+    pygame.mixer.music.play()
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     welcome_background = pygame_gui.elements.UILabel(
@@ -72,7 +71,6 @@ def start():
         manager=manager,
         object_id="#button"
     )
-
     clock = pygame.time.Clock()
     menu = True
     while menu:
@@ -376,7 +374,7 @@ def statistic(*stat_data):
     )
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((750, 290), (100, 50)),
+        relative_rect=pygame.Rect((600, 290), (300, 50)),
         text=f"{stat_data[0][0]}",
         manager=manager,
         object_id="#little_label"
@@ -390,7 +388,7 @@ def statistic(*stat_data):
     )
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((750, 340), (100, 50)),
+        relative_rect=pygame.Rect((600, 340), (300, 50)),
         text=f"{stat_data[0][1]}",
         manager=manager,
         object_id="#little_label"
@@ -404,7 +402,7 @@ def statistic(*stat_data):
     )
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((750, 390), (100, 50)),
+        relative_rect=pygame.Rect((600, 390), (300, 50)),
         text=f"{stat_data[0][2]}",
         manager=manager,
         object_id="#little_label"
@@ -418,7 +416,7 @@ def statistic(*stat_data):
     )
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((737, 490), (200, 100)),
+        relative_rect=pygame.Rect((600, 490), (300, 100)),
         text=f"{stat_data[0][4]}",
         manager=manager,
         object_id="#little_label"
@@ -432,7 +430,7 @@ def statistic(*stat_data):
     )
 
     info = pygame_gui.elements.UILabel(
-        relative_rect=pygame.Rect((750, 540), (100, 100)),
+        relative_rect=pygame.Rect((600, 540), (300, 100)),
         text=f"{stat_data[0][3]}",
         manager=manager,
         object_id="#little_label"
@@ -1172,7 +1170,6 @@ def main():
             running = False
             end(score, game_over)
         pygame.display.flip()
-
 
 if __name__ == "__main__":
     start()
