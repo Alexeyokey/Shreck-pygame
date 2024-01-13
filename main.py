@@ -1028,7 +1028,7 @@ def main():
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
     game_over = None
-    levels = iter([level_7(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
+    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
     screen_message = None
     score = 0
     cur_level_counter = 0
