@@ -935,8 +935,8 @@ def main():
         def custom_draw(self, screen, player):
             self.shadow_surface.fill((0, 0, 0, 0))
             self.main_display_surface.fill((0, 0, 0, 0))
-            screen.blit(back_image, pygame.Vector2((-300, -500)) - self.offset)
             self.target_camera(player)
+            screen.blit(back_image, pygame.Vector2((-300, -500)) - self.offset)
             player_rect = player.get_rect()
             for block in general_objects:
                 offset_pos = block.get_draw_rect().topleft - self.offset
