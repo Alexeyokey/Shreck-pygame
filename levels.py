@@ -1,6 +1,7 @@
 player_pos = (1060, 500)
 enemy_shape = (35, 40)
 
+
 def level_1():
     speed = 100
     hp = 100
@@ -59,7 +60,7 @@ def level_5():
     return enemies, enemy_respawn, player_pos
 
 def level_6():
-    speed_arch = 200
+    speed_arch = 100
     green_swordsman_speed = 400
     hp = 100
     enemy_respawn = 100
@@ -72,6 +73,7 @@ def level_6():
     enemies.append(("archer", speed_arch, hp, (player_pos[0], player_pos[1] - 250), enemy_shape, "bow", shot_delay))
     enemies.append(("archer", speed_arch, hp, (player_pos[0] + 150, player_pos[1] + 250), enemy_shape, "bow", shot_delay))
     return enemies, enemy_respawn, player_pos
+
 
 def level_7():
     speed = 100
@@ -87,4 +89,50 @@ def level_7():
     enemies.append(("archer", speed, hp, (player_pos[0] - 50, player_pos[1] - 250), enemy_shape, "bow", shot_delay))
     enemies.append(("archer", speed, hp, (player_pos[0] + 100, player_pos[1] - 250), enemy_shape, "bow", shot_delay))
     enemies.append(("archer", speed, hp, (player_pos[0] + 250, player_pos[1] - 250), enemy_shape, "bow", shot_delay))
+    return enemies, enemy_respawn, player_pos
+
+
+def level_8():
+    speed = 100
+    hp = 100
+    enemy_respawn = 100
+    shot_delay = 2.5
+    enemies = []
+    enemies.append(("archer", speed, hp, (player_pos[0] - 450, player_pos[1] + 350), enemy_shape, "bow", shot_delay))
+    enemies.append(("archer", speed, hp, (player_pos[0] + 450, player_pos[1] - 450), enemy_shape, "bow", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0] - 450, player_pos[1]), enemy_shape, "sword", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0] + 450, player_pos[1]), enemy_shape, "sword", shot_delay))
+    return enemies, enemy_respawn, player_pos
+
+
+def level_9():
+    speed = 100
+    hp = 100
+    enemy_respawn = 100
+    shot_delay = 2.5
+    enemies = []
+    enemies.append(("archer", speed, hp, (player_pos[0] + 450, player_pos[1] + 350), enemy_shape, "bow", shot_delay))
+    enemies.append(("archer", speed, hp, (player_pos[0] - 450, player_pos[1] - 450), enemy_shape, "bow", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0] - 450, player_pos[1]), enemy_shape, "sword", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0], player_pos[1] + 300), enemy_shape, "sword", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0], player_pos[1] - 300), enemy_shape, "sword", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0] + 450, player_pos[1]), enemy_shape, "sword", shot_delay))
+    return enemies, enemy_respawn, player_pos
+
+
+def level_10():
+    speed = 100
+    green_swordsman_speed = 400
+    hp = 100
+    enemy_respawn = 100
+    shot_delay = 2.5
+    enemies = []
+    enemies.append(("archer", speed, hp, (player_pos[0] - 450, player_pos[1] + 350), enemy_shape, "bow", shot_delay))
+    enemies.append(("archer", speed, hp, (player_pos[0] + 450, player_pos[1] + 350), enemy_shape, "bow", shot_delay))
+    enemies.append(("archer", speed, hp, (player_pos[0] - 450, player_pos[1] - 450), enemy_shape, "bow", shot_delay))
+    enemies.append(("archer", speed, hp, (player_pos[0] + 450, player_pos[1] - 450), enemy_shape, "bow", shot_delay))
+    enemies.append(("green_swordsman", green_swordsman_speed, hp, (player_pos[0] - 450, player_pos[1]), enemy_shape, "hands", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0], player_pos[1] + 300), enemy_shape, "sword", shot_delay))
+    enemies.append(("swordsman", speed, hp, (player_pos[0], player_pos[1] - 300), enemy_shape, "sword", shot_delay))
+    enemies.append(("green_swordsman", green_swordsman_speed, hp, (player_pos[0] + 450, player_pos[1]), enemy_shape, "hands", shot_delay))
     return enemies, enemy_respawn, player_pos

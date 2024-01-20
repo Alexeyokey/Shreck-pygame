@@ -20,10 +20,10 @@ SCREEN_HEIGHT = 720
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'themes.json')
 pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
-vol = 1
+pygame.mixer.music.set_volume(0.25)
+vol = 0.25
 
-
-def start():
+def menu():
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('themes.json')
@@ -86,7 +86,7 @@ def start():
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == start_btn:
                         menu = False
-                        main()
+                        start()
                     elif event.ui_element == settings_btn:
                         menu = False
                         settings()
@@ -101,7 +101,6 @@ def start():
         manager.update(time_delta)
         pygame.display.flip()
         pygame.display.update()
-
 
 def settings():
     global manager, vol, sensitivity_multiplier
@@ -169,7 +168,7 @@ def settings():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     setting = False
-                    start()
+                    menu()
             elif event.type == QUIT:
                 setting = False
             if event.type == pygame.USEREVENT:
@@ -188,7 +187,7 @@ def settings():
                             vol = pygame.mixer.music.get_volume()
                         elif event.ui_element == back_button:
                             setting = False
-                            start()
+                            menu()
             manager.process_events(event)
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
@@ -248,7 +247,7 @@ def pause():
                 if event.key == K_ESCAPE:
                     running = False
                     pause_flag = False
-                    start()
+                    menu()
             elif event.type == QUIT:
                 pause_flag = False
             if event.type == pygame.USEREVENT:
@@ -256,11 +255,11 @@ def pause():
                     if event.ui_element == retry:
                         running = False
                         pause_flag = False
-                        main()
+                        start()
                     elif event.ui_element == back_to_menu:
                         running = False
                         pause_flag = False
-                        start()
+                        menu()
                     elif event.ui_element == contin:
                         pause_flag = False
             manager.process_events(event)
@@ -317,17 +316,17 @@ def end(score, game_over):
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     finish = False
-                    start()
+                    menu()
             elif event.type == QUIT:
                 finish = False
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == retry:
                         finish = False
-                        main()
+                        start()
                     elif event.ui_element == back_to_menu:
                         finish = False
-                        start()
+                        menu()
             manager.process_events(event)
         screen.blit(back_screen, [0, 0])
         if sprite:
@@ -450,14 +449,14 @@ def statistic(*stat_data):
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     finish = False
-                    start()
+                    menu()
             elif event.type == QUIT:
                 finish = False
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == back_to_menu:
                         finish = False
-                        start()
+                        menu()
             manager.process_events(event)
         screen.blit(background_image, [0, 0])
         manager.draw_ui(screen)
@@ -466,7 +465,7 @@ def statistic(*stat_data):
         pygame.display.update()
 
 
-def main():
+def start():
     class Enemy(Entity):
         def __init__(self, speed, hp, coords, image_shape, knight_name, group_to_collide, *group):
             super().__init__(speed, hp, (coords[0], coords[1], image_shape[0], image_shape[1]), image_shape,
@@ -832,7 +831,7 @@ def main():
             coords = pygame.Vector2(self.entity.rect.center)
             coords[0] += math.cos(self.angle) * 60
             coords[1] += math.sin(self.angle) * 50
-            Bullet(0, 100, "sword_attack", coords, self.angle, 0.02, pygame.Surface(self.damage_area),
+            Bullet(self.entity, 0, 100, "sword_attack", coords, self.angle, 0.02, pygame.Surface(self.damage_area),
                    self.attacking_group, self.group)
             self.attack_flag = False
 
@@ -893,7 +892,8 @@ def main():
                 self.timer = pygame.time.get_ticks() + self.shot_delay
 
         def shoot(self, speed):
-            Bullet(speed, 50, "arrow", self.rect.center, self.angle, 10, self.arrow_image, self.attacking_group,
+            start_pos = self.rect.center
+            Bullet(self.entity, speed, 50, "arrow", start_pos, self.angle, 10, self.arrow_image, self.attacking_group,
                    self.group)
 
         def update(self, dt):
@@ -965,9 +965,10 @@ def main():
             return coords + self.offset
 
     class Bullet(pygame.sprite.Sprite):
-        def __init__(self, speed, damage, type, coords, angle, time_disappear, image, *group):
+        def __init__(self, entity, speed, damage, type, coords, angle, time_disappear, image, *group):
             super().__init__(*group)
             self.x, self.y = coords
+            self.entity = entity
             self.angle = angle
             self.type = type
             self.time_disappear = pygame.time.get_ticks() + time_disappear * 1000
@@ -1028,7 +1029,7 @@ def main():
     clock = pygame.time.Clock()
     timer = pygame.time.get_ticks()
     game_over = None
-    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7()])
+    levels = iter([level_1(), level_2(), level_3(), level_4(), level_5(), level_6(), level_7(), level_8(), level_9(), level_10()])
     screen_message = None
     score = 0
     cur_level_counter = 0
@@ -1149,9 +1150,10 @@ def main():
                     particle_group.update(dt)
                     for enemy in enemies:
                         enemy.attack()
-                        if (collided_sprite := pygame.sprite.spritecollideany(enemy, player_bullets)):
-                            enemy.get_hit(collided_sprite.angle, collided_sprite.damage, collided_sprite.type)
-                            collided_sprite.collide_action()
+                        if (collided_sprite := pygame.sprite.spritecollideany(enemy, [*player_bullets, *enemy_bullets])):
+                            if collided_sprite.entity != enemy:
+                                enemy.get_hit(collided_sprite.angle, collided_sprite.damage, collided_sprite.type)
+                                collided_sprite.collide_action()
                         if enemy.hp <= 0 and not enemy.death_flag:
                             enemy.death()
                             score += 100
@@ -1188,5 +1190,5 @@ def main():
 
 
 if __name__ == "__main__":
-    start()
+    menu()
     pygame.quit()
