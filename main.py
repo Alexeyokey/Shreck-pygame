@@ -22,12 +22,14 @@ manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT), 'themes.json')
 pygame.mixer.music.load('shrek_09. Smash Mouth - All Star.mp3')
 pygame.mixer.music.set_volume(0.25)
 vol = 0.25
+pygame.mixer.music.play(-1)
+
+
 
 def menu():
     global manager
     manager.clear_and_reset()
     manager.get_theme().load_theme('themes.json')
-    pygame.mixer.music.play()
     background_image = pygame.transform.scale(load_image("backs/background.jpg").convert(), (1280, 720))
 
     welcome_background = pygame_gui.elements.UILabel(
